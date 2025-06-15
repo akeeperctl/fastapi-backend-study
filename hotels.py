@@ -1,8 +1,9 @@
 from typing import Optional
 
 from fastapi import APIRouter
-from fastapi.params import Query, Body
-from pydantic import BaseModel
+from fastapi.params import Query
+
+from schemas.hotels import HotelSchema, HotelPatchSchema
 
 hotels = [
     {"id": 1, "title": "Дубай", "name": "dubai"},
@@ -40,13 +41,6 @@ def delete_hotel(id: int):
     return {"status": "ok"}
 
 
-# Называют схемой данный, реже модель
-# Представляет данные, их свойства, позволяет не нарушать DRY
-class HotelSchema(BaseModel):
-    title: str
-    name: str
-
-
 # request body
 # title
 @router.post("")
@@ -78,16 +72,14 @@ def update_hotel(id: int, hotel_data: HotelSchema):
 
 
 @router.patch("/{id}")
-def patch_hotel(id: int,
-                title: Optional[str] = Body(default=None),
-                name: Optional[str] = Body(default=None)):
+def patch_hotel(id: int, hotel_data: HotelPatchSchema):
     global hotels
     ids = [hotel['id'] for hotel in hotels]
     if id not in ids:
         return {"status": "hotel not found"}
 
     hotel = hotels[ids.index(id)]
-    hotel['title'] = title if title and title != "string" else hotel['title']
-    hotel['name'] = name if name and name != "string" else hotel['name']
+    hotel['title'] = hotel_data.title if hotel_data.title and hotel_data.title != "string" else hotel['title']
+    hotel['name'] = hotel_data.name if hotel_data.name and hotel_data.name != "string" else hotel['name']
 
     return {"status": "ok"}
