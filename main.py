@@ -24,8 +24,8 @@ app = FastAPI()
 
 
 hotels = [
-    {"id": 1, "title": "Дубай"},
-    {"id": 2, "title": "Сочи"},
+    {"id": 1, "title": "Дубай", "name": "dubai"},
+    {"id": 2, "title": "Сочи", "name": "sochi"},
 ]
 
 
@@ -58,15 +58,51 @@ def delete_hotel(id: int):
 # request body
 # title
 @app.post("/hotels")
-def create_hotel(title: str = Body(embed=False)):
+def create_hotel(title: str = Body(embed=True), name: str = Body(embed=True)):
     global hotels
     hotels.append({
         "id": hotels[-1]["id"] + 1,
-        "title": title
+        "title": title,
+        "name": name
     })
 
     return {"status": "ok"}
 
+
+# put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности
+# patch передает какой-то один или несколько параметров. Создан для редактирования 1-2 параметров
+@app.put("/hotels/{id}")
+def update_hotel(id: int,
+                 title: str = Body(embed=True),
+                 name: str = Body(embed=True)):
+
+    global hotels
+    ids = [hotel['id'] for hotel in hotels]
+    if id not in ids:
+        return {"status": "hotel not found"}
+
+    hotel = hotels[ids.index(id)]
+    hotel['title'] = title
+    hotel['name'] = name
+
+    return {"status": "ok"}
+
+
+@app.patch("/hotels/{id}")
+def patch_hotel(id: int,
+                title: Optional[str] = Body(default=None),
+                name: Optional[str] = Body(default=None)):
+
+    global hotels
+    ids = [hotel['id'] for hotel in hotels]
+    if id not in ids:
+        return {"status": "hotel not found"}
+
+    hotel = hotels[ids.index(id)]
+    hotel['title'] = title if title else hotel['title']
+    hotel['name'] = name if name else hotel['name']
+
+    return {"status": "ok"}
 
 
 @app.get("/")
