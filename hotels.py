@@ -1,6 +1,7 @@
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
+from fastapi.openapi.models import Example
 from fastapi.params import Query
 
 from schemas.hotels import HotelSchema, HotelPatchSchema
@@ -44,7 +45,37 @@ def delete_hotel(id: int):
 # request body
 # title
 @router.post("")
-def create_hotel(hotel_data: HotelSchema):
+# def create_hotel(hotel_data: HotelSchema = Body(openapi_examples={
+#     "1":{
+#         "summary": "Сочи",
+#         "value": {
+#             "title": "Отель Сочи 5 звезд у моря",
+#             "name": "sochi_y_moria"
+#         }
+#     },
+#     "2":{
+#         "summary": "Дубай",
+#         "value": {
+#             "title": "Отель Дубай у ",
+#             "name": "sochi_y_moria"
+#         }
+#     },
+# })):
+def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
+    "1": Example(
+        summary="Сочи",
+        value={
+            "title": "Отель Сочи 5 звезд у моря",
+            "name": "otel-sochi-5-zvezd-y-morya",
+        }),
+
+    "2": Example(
+        summary="Дубай",
+        value={
+            "title": "Отель Дубай 5 звезд у песка",
+            "name": "otel-dubai-5-zvezd-y-peska",
+        }),
+})):
     global hotels
     hotels.append({
         "id": hotels[-1]["id"] + 1,
