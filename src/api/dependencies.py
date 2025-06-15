@@ -1,8 +1,7 @@
 from typing import Optional, Annotated
 
-from fastapi import Query, Depends, Body
+from fastapi import Query, Depends
 from pydantic import BaseModel
-from pydantic.fields import Field
 
 
 class PaginationParams(BaseModel):

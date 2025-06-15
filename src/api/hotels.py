@@ -4,8 +4,8 @@ from fastapi import APIRouter, Body
 from fastapi.openapi.models import Example
 from fastapi.params import Query
 
-from dependencies import PaginationDep
-from schemas.hotels import HotelSchema, HotelPatchSchema
+from src.api.dependencies import PaginationDep
+from src.schemas.hotels import HotelSchema, HotelPatchSchema
 
 hotels = [
     {"id": 1, "title": "Дубай", "name": "dubai"},
