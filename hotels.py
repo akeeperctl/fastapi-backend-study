@@ -30,7 +30,7 @@ def get_hotels(id: Optional[int] = Query(default=None, description="Иденти
                per_page: Optional[int] = Query(default=3, description="Сколько отелей находится на одной странице")):
 
     hotels_ = []
-    for hotel in hotels[(page - 1) * per_page:page * per_page]:
+    for hotel in hotels:
         if id and hotel["id"] != id:
             continue
         if title and hotel["title"] != title:
@@ -38,7 +38,9 @@ def get_hotels(id: Optional[int] = Query(default=None, description="Иденти
 
         hotels_.append(hotel)
 
-    return {"data": hotels_}
+    start = (page - 1) * per_page
+    end = page * per_page
+    return {"data": hotels_[start:end]}
 
 
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
