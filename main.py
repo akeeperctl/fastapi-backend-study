@@ -7,7 +7,7 @@ from fastapi import FastAPI
 #     get_swagger_ui_html,
 #     get_swagger_ui_oauth2_redirect_html,
 # )
-from fastapi.params import Query
+from fastapi.params import Query, Body
 
 app = FastAPI()
 
@@ -48,11 +48,25 @@ def get_hotels(id: Optional[int] = Query(default=None, description="Иденти
 
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
 @app.delete("/hotels{id}")
-def delete_hotels(id: int):
+def delete_hotel(id: int):
     global hotels
     hotels = [hotel for hotel in hotels if hotel['id'] != id]
 
     return {"status": "ok"}
+
+
+# request body
+# title
+@app.post("/hotels")
+def create_hotel(title: str = Body(embed=False)):
+    global hotels
+    hotels.append({
+        "id": hotels[-1]["id"] + 1,
+        "title": title
+    })
+
+    return {"status": "ok"}
+
 
 
 @app.get("/")
