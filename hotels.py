@@ -9,6 +9,11 @@ from schemas.hotels import HotelSchema, HotelPatchSchema
 hotels = [
     {"id": 1, "title": "Дубай", "name": "dubai"},
     {"id": 2, "title": "Сочи", "name": "sochi"},
+    {"id": 3, "title": "Мальдивы", "name": "maldivi"},
+    {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
+    {"id": 5, "title": "Москва", "name": "moscow"},
+    {"id": 6, "title": "Казань", "name": "kazan"},
+    {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
 ]
 
 # prefix - это путь к ручкам этого роутера
@@ -20,9 +25,12 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 # Браузер в адресной строке всегда делает GET запрос
 @router.get("")
 def get_hotels(id: Optional[int] = Query(default=None, description="Идентификатор отеля"),
-               title: Optional[str] = Query(default=None, description="Название отеля")):
+               title: Optional[str] = Query(default=None, description="Название отеля"),
+               page: Optional[int] = Query(default=1, description="Номер страницы"),
+               per_page: Optional[int] = Query(default=3, description="Сколько отелей находится на одной странице")):
+
     hotels_ = []
-    for hotel in hotels:
+    for hotel in hotels[(page - 1) * per_page:page * per_page]:
         if id and hotel["id"] != id:
             continue
         if title and hotel["title"] != title:
