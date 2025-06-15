@@ -2,6 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter
 from fastapi.params import Query, Body
+from pydantic import BaseModel
 
 hotels = [
     {"id": 1, "title": "Дубай", "name": "dubai"},
@@ -39,15 +40,22 @@ def delete_hotel(id: int):
     return {"status": "ok"}
 
 
+# Называют схемой данный, реже модель
+# Представляет данные, их свойства, позволяет не нарушать DRY
+class HotelSchema(BaseModel):
+    title: str
+    name: str
+
+
 # request body
 # title
 @router.post("")
-def create_hotel(title: str = Body(embed=True), name: str = Body(embed=True)):
+def create_hotel(hotel_data: HotelSchema):
     global hotels
     hotels.append({
         "id": hotels[-1]["id"] + 1,
-        "title": title,
-        "name": name
+        "title": hotel_data.title,
+        "name": hotel_data.name
     })
 
     return {"status": "ok"}
@@ -56,17 +64,15 @@ def create_hotel(title: str = Body(embed=True), name: str = Body(embed=True)):
 # put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности
 # patch передает какой-то один или несколько параметров. Создан для редактирования 1-2 параметров
 @router.put("/{id}")
-def update_hotel(id: int,
-                 title: str = Body(),
-                 name: str = Body()):
+def update_hotel(id: int, hotel_data: HotelSchema):
     global hotels
     ids = [hotel['id'] for hotel in hotels]
     if id not in ids:
         return {"status": "hotel not found"}
 
     hotel = hotels[ids.index(id)]
-    hotel['title'] = title
-    hotel['name'] = name
+    hotel['title'] = hotel_data.title
+    hotel['name'] = hotel_data.name
 
     return {"status": "ok"}
 
