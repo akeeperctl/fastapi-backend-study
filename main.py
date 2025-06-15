@@ -11,7 +11,6 @@ from fastapi.params import Query
 
 app = FastAPI()
 
-
 # Исправление долгой загрузки /docs. Взято из документации.
 # @app.get("/docs", include_in_schema=False)
 # async def custom_swagger_ui_html():
@@ -31,10 +30,10 @@ hotels = [
 
 
 # Query параметры используются для фильтрации, сортировки (по близости, по рейтингу), пагинации
+# Браузер в адресной строке всегда делает GET запрос
 @app.get("/hotels")
 def get_hotels(id: Optional[int] = Query(default=None, description="Идентификатор отеля"),
                title: Optional[str] = Query(default=None, description="Название отеля")):
-
     hotels_ = []
     for hotel in hotels:
         if id and hotel["id"] != id:
@@ -47,6 +46,15 @@ def get_hotels(id: Optional[int] = Query(default=None, description="Иденти
     return {"data": hotels_}
 
 
+# Чаще всего нужно делать так, чтобы удалялась конкретная сущность
+@app.delete("/hotels{id}")
+def delete_hotels(id: int):
+    global hotels
+    hotels = [hotel for hotel in hotels if hotel['id'] != id]
+
+    return {"status": "ok"}
+
+
 @app.get("/")
 async def root():
     return {"message": " sddHello World!!!!!!"
@@ -54,4 +62,4 @@ async def root():
 
 
 if __name__ == "__main__":  # -> используется на проде
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app")
