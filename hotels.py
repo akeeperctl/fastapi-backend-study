@@ -23,11 +23,13 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 # Query параметры используются для фильтрации, сортировки (по близости, по рейтингу), пагинации
 # Браузер в адресной строке всегда делает GET запрос
+# gt - greater_then
+# lt - lesser then
 @router.get("")
 def get_hotels(id: Optional[int] = Query(default=None, description="Идентификатор отеля"),
                title: Optional[str] = Query(default=None, description="Название отеля"),
-               page: Optional[int] = Query(default=1, description="Номер страницы"),
-               per_page: Optional[int] = Query(default=3, description="Сколько отелей находится на одной странице")):
+               page: Optional[int] = Query(default=1, gt=1, description="Номер страницы"),
+               per_page: Optional[int] = Query(default=3, gt=1, lt=100, description="Сколько отелей находится на одной странице")):
 
     hotels_ = []
     for hotel in hotels:
@@ -38,8 +40,8 @@ def get_hotels(id: Optional[int] = Query(default=None, description="Иденти
 
         hotels_.append(hotel)
 
-    start = (page - 1) * per_page
-    end = page * per_page
+    start = (pagination.page - 1) * pagination.per_page
+    end = pagination.page * pagination.per_page
     return {"data": hotels_[start:end]}
 
 
