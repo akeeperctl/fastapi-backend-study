@@ -3,23 +3,12 @@ from typing import Optional
 from fastapi import APIRouter, Body
 from fastapi.openapi.models import Example
 from fastapi.params import Query
-from sqlalchemy import insert
-
+from sqlalchemy import insert, select
 
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker
 from src.models.hotels import HotelsOrm
 from src.schemas.hotels import HotelSchema, HotelPatchSchema
-
-# hotels = [
-#     {"id": 1, "title": "Дубай", "name": "dubai"},
-#     {"id": 2, "title": "Сочи", "name": "sochi"},
-#     {"id": 3, "title": "Мальдивы", "name": "maldivi"},
-#     {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
-#     {"id": 5, "title": "Москва", "name": "moscow"},
-#     {"id": 6, "title": "Казань", "name": "kazan"},
-#     {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
-# ]
 
 # prefix - это путь к ручкам этого роутера
 # tags - это категория в OpenAPI
@@ -31,24 +20,22 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 # gt - greater_then
 # lt - lesser then
 @router.get("")
-def get_hotels(
+async def get_hotels(
         pagination: PaginationDep,
         id: Optional[int] = Query(default=None, description="Идентификатор отеля"),
         title: Optional[str] = Query(default=None, description="Название отеля")
 ):
+    async with async_session_maker() as session:
+        query = select(HotelsOrm)
+        result = await session.execute(query)
+        # result - итератор
+        hotels = result.scalars().all()
+        print(type(hotels), hotels)
 
-    hotels_ = []
-    for hotel in hotels:
-        if id and hotel["id"] != id:
-            continue
-        if title and hotel["title"] != title:
-            continue
+        return hotels
 
-        hotels_.append(hotel)
-
-    start = (pagination.page - 1) * pagination.per_page
-    end = pagination.page * pagination.per_page
-    return {"data": hotels_[start:end]}
+    # start = (pagination.page - 1) * pagination.per_page
+    # end = pagination.page * pagination.per_page
 
 
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
@@ -63,22 +50,6 @@ def delete_hotel(id: int):
 # request body
 # title
 @router.post("")
-# def create_hotel(hotel_data: HotelSchema = Body(openapi_examples={
-#     "1":{
-#         "summary": "Сочи",
-#         "value": {
-#             "title": "Отель Сочи 5 звезд у моря",
-#             "name": "sochi_y_moria"
-#         }
-#     },
-#     "2":{
-#         "summary": "Дубай",
-#         "value": {
-#             "title": "Отель Дубай у ",
-#             "name": "sochi_y_moria"
-#         }
-#     },
-# })):
 async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
     "1": Example(
         summary="Сочи",
@@ -94,7 +65,6 @@ async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
             "location": "Дубай",
         }),
 })):
-
     # Зачем нужен контекстный менеджер?
     # В Базе данных максимум 100 одновременных подключений.
     # Это может быть 100 разных пользователей, это может быть 1 алхимия, которая захватила 100 подключений
