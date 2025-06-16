@@ -27,8 +27,16 @@ async def get_hotels(
         title: Optional[str] = Query(default=None, description="Название отеля"),
         location: Optional[str] = Query(default=None, description="Местонахождение отеля")
 ):
+    per_page = pagination.per_page or 5
+    page = per_page * (pagination.page - 1)
+
     async with async_session_maker() as session:
-        return await HotelsRepository(session).get_all()
+        return await HotelsRepository(session).get_all(
+            location=location,
+            title=title,
+            limit=per_page,
+            offset=page
+        )
 
 
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
