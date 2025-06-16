@@ -9,6 +9,7 @@ from sqlalchemy import insert, select, func
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
 from src.models.hotels import HotelsOrm
+from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import HotelSchema, HotelPatchSchema
 
 # prefix - это путь к ручкам этого роутера
@@ -26,32 +27,8 @@ async def get_hotels(
         title: Optional[str] = Query(default=None, description="Название отеля"),
         location: Optional[str] = Query(default=None, description="Местонахождение отеля")
 ):
-    per_page = pagination.per_page or 5
-    page = per_page * (pagination.page - 1)
-
     async with async_session_maker() as session:
-        query = select(HotelsOrm)
-        if title:
-            query = query.where(HotelsOrm.title.icontains(title.strip()))
-        if location:
-            query = query.where(HotelsOrm.location.icontains(location.strip()))
-
-        query = (
-            query
-            .offset(page)
-            .limit(per_page)
-        )
-
-        print(query.compile(engine, compile_kwargs={"literal_binds": True}))
-        result = await session.execute(query)
-        # result - итератор
-        hotels = result.scalars().all()
-        print(type(hotels), hotels)
-
-        return hotels
-
-    # start = (pagination.page - 1) * pagination.per_page
-    # end = pagination.page * pagination.per_page
+        return await HotelsRepository(session).get_all()
 
 
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
