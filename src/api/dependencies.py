@@ -9,7 +9,7 @@ class PaginationParams(BaseModel):
     page: Annotated[
         Optional[int], Query(default=1, ge=1, description="Номер страницы")]
     per_page: Annotated[
-        Optional[int], Query(default=3, ge=1, lt=100, description="Сколько отелей находится на одной странице")]
+        Optional[int], Query(default=None, ge=1, lt=100, description="Сколько отелей находится на одной странице")]
 
 
 # FastAPI прокинь все параметры из Pydantic схемы PaginationParams как Query-параметры

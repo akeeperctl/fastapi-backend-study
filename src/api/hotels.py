@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 
 from fastapi import APIRouter, Body
@@ -22,11 +23,26 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("")
 async def get_hotels(
         pagination: PaginationDep,
-        id: Optional[int] = Query(default=None, description="Идентификатор отеля"),
-        title: Optional[str] = Query(default=None, description="Название отеля")
+        title: Optional[str] = Query(default=None, description="Название отеля"),
+        location: Optional[str] = Query(default=None, description="Местонахождение отеля")
 ):
+    per_page = pagination.per_page or 5
+    page = per_page * (pagination.page - 1)
+
     async with async_session_maker() as session:
         query = select(HotelsOrm)
+        if title:
+            query = query.where(HotelsOrm.title.contains(title))
+        if location:
+            query = query.where(HotelsOrm.location.contains(location))
+
+        query = (
+            query
+            .offset(page)
+            .limit(per_page)
+        )
+
+        print(query.compile(compile_kwargs={"literal_binds": True}))
         result = await session.execute(query)
         # result - итератор
         hotels = result.scalars().all()
