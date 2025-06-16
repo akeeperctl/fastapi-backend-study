@@ -73,10 +73,9 @@ async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
     # Под сессией имеется ввиду какое-то подключение к базе данных.
 
     async with async_session_maker() as session:
-        rep = HotelsRepository(session)
-        result = await rep.add(hotel_data)
-        await rep.commit()
-        return {"status": "ok", "data": result.scalars().first()}
+        hotel = HotelsRepository(session).add(hotel_data)
+        session.commit()
+        return {"status": "ok", "data": hotel}
 
 
 # put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности

@@ -23,10 +23,6 @@ class BaseRepository:
 
     async def add(self, schema: BaseModel):
         add_stmt = insert(self.model).values(**schema.model_dump()).returning(self.model)
-        print(f"add_stmt={add_stmt.compile(engine, compile_kwargs={'literal_binds': True})}")
-        return await self.session.execute(add_stmt)
-
-    async def commit(self):
-        return await self.session.commit()
-
+        result = await self.session.execute(add_stmt)
+        return result.scalars().one()
 
