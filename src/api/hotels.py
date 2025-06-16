@@ -1,14 +1,11 @@
-import re
 from typing import Optional
 
 from fastapi import APIRouter, Body
 from fastapi.openapi.models import Example
 from fastapi.params import Query
-from sqlalchemy import insert, select, func
 
 from src.api.dependencies import PaginationDep
-from src.database import async_session_maker, engine
-from src.models.hotels import HotelsOrm
+from src.database import async_session_maker
 from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import HotelSchema, HotelPatchSchema
 
@@ -74,12 +71,12 @@ async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
     # Если не будем закрывать подключения и у нас будет 15 запросов, то 16 ый уже не пройдет.
     # Он упадет с ошибкой или в вечном ожидании.
     # Под сессией имеется ввиду какое-то подключение к базе данных.
-    async with async_session_maker() as session:
-        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
-        await session.execute(add_hotel_stmt)
-        await session.commit()
 
-    return {"status": "ok"}
+    async with async_session_maker() as session:
+        rep = HotelsRepository(session)
+        result = await rep.add(hotel_data)
+        await rep.commit()
+        return {"status": "ok", "data": result.scalars().first()}
 
 
 # put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности
