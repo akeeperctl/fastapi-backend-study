@@ -4,10 +4,10 @@ from typing import Optional
 from fastapi import APIRouter, Body
 from fastapi.openapi.models import Example
 from fastapi.params import Query
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, func
 
 from src.api.dependencies import PaginationDep
-from src.database import async_session_maker
+from src.database import async_session_maker, engine
 from src.models.hotels import HotelsOrm
 from src.schemas.hotels import HotelSchema, HotelPatchSchema
 
@@ -32,9 +32,9 @@ async def get_hotels(
     async with async_session_maker() as session:
         query = select(HotelsOrm)
         if title:
-            query = query.where(HotelsOrm.title.contains(title))
+            query = query.where(HotelsOrm.title.icontains(title.strip()))
         if location:
-            query = query.where(HotelsOrm.location.contains(location))
+            query = query.where(HotelsOrm.location.icontains(location.strip()))
 
         query = (
             query
@@ -42,7 +42,7 @@ async def get_hotels(
             .limit(per_page)
         )
 
-        print(query.compile(compile_kwargs={"literal_binds": True}))
+        print(query.compile(engine, compile_kwargs={"literal_binds": True}))
         result = await session.execute(query)
         # result - итератор
         hotels = result.scalars().all()
