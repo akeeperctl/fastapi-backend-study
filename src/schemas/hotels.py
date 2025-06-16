@@ -7,9 +7,9 @@ from pydantic import BaseModel
 
 class HotelSchema(BaseModel):
     title: str
-    name: str
+    location: str
 
 
 class HotelPatchSchema(BaseModel):
     title: Optional[str] = None
-    name: Optional[str] = None
+    location: Optional[str] = None

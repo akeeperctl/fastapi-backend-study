@@ -3,19 +3,23 @@ from typing import Optional
 from fastapi import APIRouter, Body
 from fastapi.openapi.models import Example
 from fastapi.params import Query
+from sqlalchemy import insert
+
 
 from src.api.dependencies import PaginationDep
+from src.database import async_session_maker
+from src.models.hotels import HotelsOrm
 from src.schemas.hotels import HotelSchema, HotelPatchSchema
 
-hotels = [
-    {"id": 1, "title": "Дубай", "name": "dubai"},
-    {"id": 2, "title": "Сочи", "name": "sochi"},
-    {"id": 3, "title": "Мальдивы", "name": "maldivi"},
-    {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
-    {"id": 5, "title": "Москва", "name": "moscow"},
-    {"id": 6, "title": "Казань", "name": "kazan"},
-    {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
-]
+# hotels = [
+#     {"id": 1, "title": "Дубай", "name": "dubai"},
+#     {"id": 2, "title": "Сочи", "name": "sochi"},
+#     {"id": 3, "title": "Мальдивы", "name": "maldivi"},
+#     {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
+#     {"id": 5, "title": "Москва", "name": "moscow"},
+#     {"id": 6, "title": "Казань", "name": "kazan"},
+#     {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
+# ]
 
 # prefix - это путь к ручкам этого роутера
 # tags - это категория в OpenAPI
@@ -75,27 +79,34 @@ def delete_hotel(id: int):
 #         }
 #     },
 # })):
-def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
+async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
     "1": Example(
         summary="Сочи",
         value={
-            "title": "Отель Сочи 5 звезд у моря",
-            "name": "otel-sochi-5-zvezd-y-morya",
+            "title": "Отель 5 звезд у моря",
+            "location": "Сочи",
         }),
 
     "2": Example(
         summary="Дубай",
         value={
-            "title": "Отель Дубай 5 звезд у песка",
-            "name": "otel-dubai-5-zvezd-y-peska",
+            "title": "Отель 5 звезд у песка",
+            "location": "Дубай",
         }),
 })):
-    global hotels
-    hotels.append({
-        "id": hotels[-1]["id"] + 1,
-        "title": hotel_data.title,
-        "name": hotel_data.name
-    })
+
+    # Зачем нужен контекстный менеджер?
+    # В Базе данных максимум 100 одновременных подключений.
+    # Это может быть 100 разных пользователей, это может быть 1 алхимия, которая захватила 100 подключений
+    # Каждый раз когда мы объявляем сессию мы захватываем/блокируем 5 подключений к базе данных.
+    # Изначально Алхимия создает 5 подключений к БД. И лишь в случае большой нагрузки создает доп. 10 подключений.
+    # Если не будем закрывать подключения и у нас будет 15 запросов, то 16 ый уже не пройдет.
+    # Он упадет с ошибкой или в вечном ожидании.
+    # Под сессией имеется ввиду какое-то подключение к базе данных.
+    async with async_session_maker() as session:
+        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
+        await session.execute(add_hotel_stmt)
+        await session.commit()
 
     return {"status": "ok"}
 
