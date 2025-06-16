@@ -38,9 +38,10 @@ async def get_hotels(
 
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
 @router.delete("/{id}")
-def delete_hotel(id: int):
-    global hotels
-    hotels = [hotel for hotel in hotels if hotel['id'] != id]
+async def delete_hotel(id: int):
+    async with async_session_maker() as session:
+        await HotelsRepository(session).delete(id=id)
+        await session.commit()
 
     return {"status": "ok"}
 
@@ -73,23 +74,19 @@ async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
     # Под сессией имеется ввиду какое-то подключение к базе данных.
 
     async with async_session_maker() as session:
-        hotel = HotelsRepository(session).add(hotel_data)
-        session.commit()
+        hotel = await HotelsRepository(session).add(hotel_data)
+        await session.commit()
         return {"status": "ok", "data": hotel}
 
 
 # put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности
 # patch передает какой-то один или несколько параметров. Создан для редактирования 1-2 параметров
 @router.put("/{id}")
-def update_hotel(id: int, hotel_data: HotelSchema):
-    global hotels
-    ids = [hotel['id'] for hotel in hotels]
-    if id not in ids:
-        return {"status": "hotel not found"}
+async def edit_hotel(id: int, hotel_data: HotelSchema):
 
-    hotel = hotels[ids.index(id)]
-    hotel['title'] = hotel_data.title
-    hotel['name'] = hotel_data.name
+    async with async_session_maker() as session:
+        await HotelsRepository(session).edit(hotel_data, id=id)
+        await session.commit()
 
     return {"status": "ok"}
 

@@ -6,7 +6,7 @@ from src.repositories.base import BaseRepository
 
 
 class HotelsRepository(BaseRepository):
-    model = HotelsOrm
+    orm = HotelsOrm
 
     async def get_all(
             self,
@@ -15,11 +15,11 @@ class HotelsRepository(BaseRepository):
             limit,
             offset
     ):
-        query = select(self.model)
+        query = select(self.orm)
         if title:
-            query = query.where(self.model.title.icontains(title.strip()))
+            query = query.where(self.orm.title.icontains(title.strip()))
         if location:
-            query = query.where(self.model.location.icontains(location.strip()))
+            query = query.where(self.orm.location.icontains(location.strip()))
 
         query = (
             query
