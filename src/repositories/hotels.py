@@ -1,6 +1,5 @@
 from sqlalchemy import select
 
-from src.database import async_session_maker
 from src.models.hotels import HotelsOrm
 from src.repositories.base import BaseRepository
 

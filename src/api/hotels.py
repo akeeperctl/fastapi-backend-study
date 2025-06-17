@@ -92,14 +92,10 @@ async def edit_hotel(id: int, hotel_data: HotelSchema):
 
 
 @router.patch("/{id}")
-def patch_hotel(id: int, hotel_data: HotelPatchSchema):
-    global hotels
-    ids = [hotel['id'] for hotel in hotels]
-    if id not in ids:
-        return {"status": "hotel not found"}
+async def patch_hotel(id: int, hotel_data: HotelPatchSchema):
 
-    hotel = hotels[ids.index(id)]
-    hotel['title'] = hotel_data.title if hotel_data.title and hotel_data.title != "string" else hotel['title']
-    hotel['name'] = hotel_data.name if hotel_data.name and hotel_data.name != "string" else hotel['name']
+    async with async_session_maker() as session:
+        await HotelsRepository(session).edit(hotel_data, exclude_unset=True, id=id)
+        await session.commit()
 
     return {"status": "ok"}
