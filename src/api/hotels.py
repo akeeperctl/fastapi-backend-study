@@ -36,6 +36,12 @@ async def get_hotels(
         )
 
 
+@router.get("/{id}")
+async def get_hotel(id: int):
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_one_or_none(id=id)
+
+
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
 @router.delete("/{id}")
 async def delete_hotel(id: int):
@@ -83,7 +89,6 @@ async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
 # patch передает какой-то один или несколько параметров. Создан для редактирования 1-2 параметров
 @router.put("/{id}")
 async def edit_hotel(id: int, hotel_data: HotelSchema):
-
     async with async_session_maker() as session:
         await HotelsRepository(session).edit(hotel_data, id=id)
         await session.commit()
@@ -93,7 +98,6 @@ async def edit_hotel(id: int, hotel_data: HotelSchema):
 
 @router.patch("/{id}")
 async def patch_hotel(id: int, hotel_data: HotelPatchSchema):
-
     async with async_session_maker() as session:
         await HotelsRepository(session).edit(hotel_data, exclude_unset=True, id=id)
         await session.commit()
