@@ -3,9 +3,12 @@ from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.schemas.hotels import HotelSchema
+
 
 class BaseRepository:
     orm = None
+    schema: BaseModel = None
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -13,17 +16,24 @@ class BaseRepository:
     async def get_all(self, *args, **kwargs):
         query = select(self.orm)
         result = await self.session.execute(query)
-        return result.scalars().all()
+
+        # model_validate валидирует что объект "hotel" соответствует схеме Pydantic HotelSchema
+        # from_attributes=True заставляет Pydantic валидировать объект по его атрибутам
+        return [self.schema.model_validate(item, from_attributes=True) for item in result.scalars().all()]
 
     async def get_one_or_none(self, **filter_by):
         query = select(self.orm).filter_by(**filter_by)
         result = await self.session.execute(query)
-        return result.scalars().one_or_none()
+        item = result.scalars().one_or_none()
+
+        if item is None:
+            return None
+        return self.schema.model_validate(item, from_attributes=True)
 
     async def add(self, schema: BaseModel):
         add_stmt = insert(self.orm).values(**schema.model_dump()).returning(self.orm)
         result = await self.session.execute(add_stmt)
-        return result.scalars().one()
+        return self.schema.model_validate(result.scalars().one(), from_attributes=True)
 
     async def edit(self, schema: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
         update_stmt = (

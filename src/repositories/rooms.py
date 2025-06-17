@@ -4,3 +4,4 @@ from src.repositories.base import BaseRepository
 
 class RoomsRepository(BaseRepository):
     orm = RoomsOrm
+    schema = RoomsSchema

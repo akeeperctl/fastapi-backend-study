@@ -7,7 +7,7 @@ from fastapi.params import Query
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker
 from src.repositories.hotels import HotelsRepository
-from src.schemas.hotels import HotelSchema, HotelPatchSchema
+from src.schemas.hotels import HotelSchema, HotelPatchSchema, HotelAddSchema
 
 # prefix - это путь к ручкам этого роутера
 # tags - это категория в OpenAPI
@@ -55,7 +55,7 @@ async def delete_hotel(id: int):
 # request body
 # title
 @router.post("")
-async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
+async def create_hotel(hotel_data: HotelAddSchema = Body(openapi_examples={
     "1": Example(
         summary="Сочи",
         value={
@@ -88,7 +88,7 @@ async def create_hotel(hotel_data: HotelPatchSchema = Body(openapi_examples={
 # put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности
 # patch передает какой-то один или несколько параметров. Создан для редактирования 1-2 параметров
 @router.put("/{id}")
-async def edit_hotel(id: int, hotel_data: HotelSchema):
+async def edit_hotel(id: int, hotel_data: HotelAddSchema):
     async with async_session_maker() as session:
         await HotelsRepository(session).edit(hotel_data, id=id)
         await session.commit()
