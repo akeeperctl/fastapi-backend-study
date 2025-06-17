@@ -55,7 +55,7 @@ async def delete_hotel(id: int):
 # request body
 # title
 @router.post("")
-async def create_hotel(hotel_data: HotelAddSchema = Body(openapi_examples={
+async def create_hotel(data: HotelAddSchema = Body(openapi_examples={
     "1": Example(
         summary="Сочи",
         value={
@@ -80,7 +80,7 @@ async def create_hotel(hotel_data: HotelAddSchema = Body(openapi_examples={
     # Под сессией имеется ввиду какое-то подключение к базе данных.
 
     async with async_session_maker() as session:
-        hotel = await HotelsRepository(session).add(hotel_data)
+        hotel = await HotelsRepository(session).add(data)
         await session.commit()
         return {"status": "ok", "data": hotel}
 
@@ -88,18 +88,18 @@ async def create_hotel(hotel_data: HotelAddSchema = Body(openapi_examples={
 # put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности
 # patch передает какой-то один или несколько параметров. Создан для редактирования 1-2 параметров
 @router.put("/{id}")
-async def edit_hotel(id: int, hotel_data: HotelAddSchema):
+async def edit_hotel(id: int, data: HotelAddSchema):
     async with async_session_maker() as session:
-        await HotelsRepository(session).edit(hotel_data, id=id)
+        await HotelsRepository(session).edit(data, id=id)
         await session.commit()
 
     return {"status": "ok"}
 
 
 @router.patch("/{id}")
-async def patch_hotel(id: int, hotel_data: HotelPatchSchema):
+async def patch_hotel(id: int, data: HotelPatchSchema):
     async with async_session_maker() as session:
-        await HotelsRepository(session).edit(hotel_data, exclude_unset=True, id=id)
+        await HotelsRepository(session).edit(data, exclude_unset=True, id=id)
         await session.commit()
 
     return {"status": "ok"}
