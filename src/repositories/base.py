@@ -30,16 +30,16 @@ class BaseRepository:
             return None
         return self.schema.model_validate(item, from_attributes=True)
 
-    async def add(self, schema: BaseModel):
-        add_stmt = insert(self.orm).values(**schema.model_dump()).returning(self.orm)
+    async def add(self, data: BaseModel):
+        add_stmt = insert(self.orm).values(**data.model_dump()).returning(self.orm)
         result = await self.session.execute(add_stmt)
         return self.schema.model_validate(result.scalars().one(), from_attributes=True)
 
-    async def edit(self, schema: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
         update_stmt = (
             update(self.orm).
             filter_by(**filter_by).
-            values(**schema.model_dump(exclude_unset=exclude_unset))
+            values(**data.model_dump(exclude_unset=exclude_unset))
         )
 
         result = await self.session.execute(update_stmt)
