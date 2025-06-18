@@ -21,3 +21,7 @@ class UserScheme(BaseModel):
     first_name: Optional[str]
     last_name: Optional[str]
     nick_name: Optional[str]
+
+
+class UserWithHashedPwdScheme(UserScheme):
+    hashed_password: str
