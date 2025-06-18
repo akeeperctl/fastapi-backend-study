@@ -14,7 +14,7 @@ class UsersOrm(Base):
 
     # primary_key=True делает столбец первичный ключ (он уникальный по определению, т.е. нет смысла в unique=True)
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(200))
+    email: Mapped[str] = mapped_column(String(200), unique=True)
     hashed_password: Mapped[str] = mapped_column(String(200))
     first_name: Mapped[Optional[str]] = mapped_column(String(100))
     last_name: Mapped[Optional[str]] = mapped_column(String(100))
