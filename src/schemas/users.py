@@ -1,21 +1,23 @@
-from pydantic import BaseModel
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr
 
 
 class UserRequestAddScheme(BaseModel):
     """Схема на фронтенд API для добавления пользователя"""
-    email: str
+    email: EmailStr
     password: str
 
 
 class UserAddScheme(BaseModel):
     """Схема для добавления в репозиторий и отправки пользователя в базу данных"""
-    email: str
+    email: EmailStr
     hashed_password: str
 
 
 class UserScheme(BaseModel):
     id: int
-    email: str
-    first_name: str
-    last_name: str
-    nick_name: str
+    email: EmailStr
+    first_name: Optional[str]
+    last_name: Optional[str]
+    nick_name: Optional[str]
