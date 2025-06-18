@@ -41,6 +41,10 @@ async def register_user(
 
 @router.get("/only_auth")
 async def only_auth(
-       request: Request
+        request: Request
 ):
-    return {"access_token": request.cookies.get("access_token", None)}
+    access_token = request.cookies.get("access_token", None)
+    token_data = AuthService().decode_token(access_token)
+    async with async_session_maker() as session:
+        user = await UsersRepository(session).get_one_or_none(id=token_data["user_id"])
+        return {"data": user}
