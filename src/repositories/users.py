@@ -16,7 +16,7 @@ class UsersRepository(BaseRepository):
         try:
             return await super().add(data)
         except IntegrityError:
-            raise HTTPException(status_code=409, detail={"msg": "такой пользователь уже существует"})
+            raise HTTPException(status_code=409, detail={"msg": "Такой пользователь уже существует"})
 
     async def get_user_with_hashed_pwd(self, email: EmailStr):
         query = select(self.orm).filter_by(email=email)

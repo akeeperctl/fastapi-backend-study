@@ -17,9 +17,9 @@ async def login_user(
     async with async_session_maker() as session:
         user = await UsersRepository(session).get_user_with_hashed_pwd(email=data.email)
         if not user:
-            raise HTTPException(status_code=401, detail={"msg": "пользователь с таким email не существует"})
+            raise HTTPException(status_code=401, detail={"msg": "Пользователь с таким email не существует"})
         if not AuthService().verify_password(data.password, user.hashed_password):
-            raise HTTPException(status_code=403, detail={"msg": "неверный пароль"})
+            raise HTTPException(status_code=403, detail={"msg": "Неверный пароль"})
 
         access_token = AuthService().create_access_token({"user_id": user.id})
         response.set_cookie("access_token", access_token)

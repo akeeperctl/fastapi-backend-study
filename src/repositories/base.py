@@ -46,9 +46,9 @@ class BaseRepository:
         rowcount = result.rowcount
 
         if rowcount > 1:
-            raise HTTPException(400, "объектов больше чем 1")
+            raise HTTPException(400, "Объектов больше чем 1")
         elif rowcount < 1:
-            raise HTTPException(404, "объект не найден")
+            raise HTTPException(404, "Объект не найден")
 
     async def delete(self, **filter_by) -> None:
         delete_stmt = delete(self.orm).filter_by(**filter_by)
@@ -56,4 +56,4 @@ class BaseRepository:
         rowcount = result.rowcount
 
         if rowcount < 1:
-            raise HTTPException(404, "объект не найден")
+            raise HTTPException(404, "Объект не найден")
