@@ -3,7 +3,7 @@ from fastapi.openapi.models import Example
 
 from src.database import async_session_maker
 from src.repositories.rooms import RoomsRepository
-from src.schemas.rooms import RoomsAddSchema, RoomsPatchSchema
+from src.schemas.rooms import RoomAddSchema, RoomPatchSchema, RoomAddRequestSchema, RoomPatchRequestSchema
 
 router = APIRouter(prefix="/hotels", tags=["Комнаты отелей"])
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/hotels", tags=["Комнаты отелей"])
 @router.get("/{hotel_id}/rooms")
 async def get_rooms(hotel_id: int):
     async with async_session_maker() as session:
-        return await RoomsRepository(session).get_all(hotel_id=hotel_id)
+        return await RoomsRepository(session).get_filtered(hotel_id=hotel_id)
 
 
 @router.get("/{hotel_id}/rooms/{room_id}")
@@ -20,11 +20,11 @@ async def get_room(hotel_id: int, room_id: int):
         room = await RoomsRepository(session).get_one_or_none(hotel_id=hotel_id, id=room_id)
         if not room:
             raise HTTPException(status_code=404, detail="Комната отеля не найдена")
-        return room
+        return {"status": "ok", "data": room}
 
 
 @router.post("/{hotel_id}/rooms")
-async def create_room(hotel_id: int, data: RoomsAddSchema = Body(openapi_examples={
+async def create_room(hotel_id: int, data: RoomAddRequestSchema = Body(openapi_examples={
     "1": Example(
         summary="Люкс комната",
         value={
@@ -43,8 +43,9 @@ async def create_room(hotel_id: int, data: RoomsAddSchema = Body(openapi_example
             "quantity": 2,
         }),
 })):
+    _data = RoomAddSchema(hotel_id=hotel_id, **data.model_dump())
     async with async_session_maker() as session:
-        room = await RoomsRepository(session).add_by_hotel_id(hotel_id, data)
+        room = await RoomsRepository(session).add(_data)
         await session.commit()
         return {"status": "ok", "data": room}
 
@@ -53,10 +54,11 @@ async def create_room(hotel_id: int, data: RoomsAddSchema = Body(openapi_example
 async def edit_room(
         hotel_id: int,
         room_id: int,
-        data: RoomsAddSchema
+        data: RoomAddRequestSchema
 ):
+    _data = RoomAddSchema(hotel_id=hotel_id, **data.model_dump())
     async with async_session_maker() as session:
-        await RoomsRepository(session).edit(data=data, hotel_id=hotel_id, id=room_id)
+        await RoomsRepository(session).edit(data=_data, id=room_id, hotel_id=hotel_id)
         await session.commit()
 
         return {"status": "ok"}
@@ -66,10 +68,12 @@ async def edit_room(
 async def patch_room(
         hotel_id: int,
         room_id: int,
-        data: RoomsPatchSchema
+        data: RoomPatchRequestSchema
 ):
+    # exclude_unset=True отбрасывает неуказанные свойства для изменения
+    _data = RoomPatchSchema(hotel_id=hotel_id, **data.model_dump(exclude_unset=True))
     async with async_session_maker() as session:
-        await RoomsRepository(session).edit(data=data, hotel_id=hotel_id, id=room_id, exclude_unset=True)
+        await RoomsRepository(session).edit(data=_data, hotel_id=hotel_id, id=room_id, exclude_unset=True)
         await session.commit()
 
         return {"status": "ok"}

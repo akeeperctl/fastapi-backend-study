@@ -3,8 +3,6 @@ from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.schemas.hotels import HotelSchema
-
 
 class BaseRepository:
     orm = None
@@ -13,13 +11,16 @@ class BaseRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_all(self, *args, **kwargs):
-        query = select(self.orm)
+    async def get_filtered(self, **filter_by):
+        query = select(self.orm).filter_by(**filter_by)
         result = await self.session.execute(query)
 
         # model_validate валидирует что объект "hotel" соответствует схеме Pydantic HotelSchema
         # from_attributes=True заставляет Pydantic валидировать объект по его атрибутам
         return [self.schema.model_validate(item, from_attributes=True) for item in result.scalars().all()]
+
+    async def get_all(self, *args, **kwargs):
+        return await self.get_filtered()
 
     async def get_one_or_none(self, **filter_by):
         query = select(self.orm).filter_by(**filter_by)

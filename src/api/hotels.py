@@ -7,7 +7,7 @@ from fastapi.params import Query
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker
 from src.repositories.hotels import HotelsRepository
-from src.schemas.hotels import HotelSchema, HotelPatchSchema, HotelAddSchema
+from src.schemas.hotels import HotelPatchSchema, HotelAddSchema
 
 # prefix - это путь к ручкам этого роутера
 # tags - это категория в OpenAPI
@@ -42,7 +42,7 @@ async def get_hotel(id: int):
         hotel = await HotelsRepository(session).get_one_or_none(id=id)
         if not hotel:
             raise HTTPException(status_code=404, detail="Отель не найден")
-        return hotel
+        return {"status": "ok", "data": hotel}
 
 
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность

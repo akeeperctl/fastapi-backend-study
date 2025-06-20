@@ -16,8 +16,8 @@ from src.database import *
 app = FastAPI()
 
 app.include_router(auth_router)
-app.include_router(rooms_router)
 app.include_router(hotels_router)
+app.include_router(rooms_router)
 
 
 @app.get("/")
