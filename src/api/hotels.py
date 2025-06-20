@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
 from fastapi.openapi.models import Example
 from fastapi.params import Query
 
@@ -39,7 +39,10 @@ async def get_hotels(
 @router.get("/{id}")
 async def get_hotel(id: int):
     async with async_session_maker() as session:
-        return await HotelsRepository(session).get_one_or_none(id=id)
+        hotel = await HotelsRepository(session).get_one_or_none(id=id)
+        if not hotel:
+            raise HTTPException(status_code=404, detail="Отель не найден")
+        return hotel
 
 
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
