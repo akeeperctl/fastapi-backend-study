@@ -14,8 +14,8 @@ class BookingsOrm(Base):
     __tablename__ = "bookings"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    room_id: Mapped[int] = mapped_column(ForeignKey(RoomsOrm.id))
-    user_id: Mapped[int] = mapped_column(ForeignKey(UsersOrm.id))
+    room_id: Mapped[int] = mapped_column(ForeignKey(RoomsOrm.id, ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(ForeignKey(UsersOrm.id, ondelete="CASCADE"))
     date_from: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     date_to: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     price: Mapped[int]

@@ -49,7 +49,8 @@ async def create_room(
                     "price": 3000,
                     "quantity": 2,
                 }),
-        })):
+        })
+):
     _data = RoomAddSchema(hotel_id=hotel_id, **data.model_dump())
     rooms = await db.rooms.add(_data)
     await db.commit()
