@@ -45,17 +45,6 @@ async def get_hotel(
     return {"status": "ok", "data": hotel}
 
 
-# Чаще всего нужно делать так, чтобы удалялась конкретная сущность
-@router.delete("/{hotel_id}")
-async def delete_hotel(
-        db: DBDep,
-        hotel_id: int,
-):
-    await db.hotels.delete(id=hotel_id)
-    await db.commit()
-    return {"status": "ok"}
-
-
 # request body
 # title
 @router.post("")
@@ -101,5 +90,16 @@ async def patch_hotel(
         hotel_data: HotelPatchSchema,
 ):
     await db.hotels.edit(hotel_data, exclude_unset=True, id=hotel_id)
+    await db.commit()
+    return {"status": "ok"}
+
+
+# Чаще всего нужно делать так, чтобы удалялась конкретная сущность
+@router.delete("/{hotel_id}")
+async def delete_hotel(
+        db: DBDep,
+        hotel_id: int,
+):
+    await db.hotels.delete(id=hotel_id)
     await db.commit()
     return {"status": "ok"}

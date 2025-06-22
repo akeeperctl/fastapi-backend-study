@@ -7,6 +7,14 @@ from src.services.auth import AuthService
 router = APIRouter(prefix="/auth", tags=["Авторизация и аутентификация"])
 
 
+@router.get("/me")
+async def get_me(
+        db: DBDep,
+        user_id: UserIdDep
+):
+    return {"data": await db.users.get_one_or_none(id=user_id)}
+
+
 @router.post("/login")
 async def login_user(
         db: DBDep,
@@ -43,11 +51,3 @@ async def logout_user(
 ):
     response.delete_cookie("access_token")
     return {"status": "ok"}
-
-
-@router.get("/me")
-async def get_me(
-        db: DBDep,
-        user_id: UserIdDep
-):
-    return {"data": await db.users.get_one_or_none(id=user_id)}
