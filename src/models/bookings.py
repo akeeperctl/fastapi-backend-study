@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from sqlalchemy import ForeignKey, DateTime
 from sqlalchemy.orm import Mapped
@@ -16,6 +16,6 @@ class BookingsOrm(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     room_id: Mapped[int] = mapped_column(ForeignKey(RoomsOrm.id, ondelete="CASCADE"))
     user_id: Mapped[int] = mapped_column(ForeignKey(UsersOrm.id, ondelete="CASCADE"))
-    date_from: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    date_to: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    date_from: Mapped[date]
+    date_to: Mapped[date]
     price: Mapped[int]
