@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.bookings import BookingAddSchema, BookingAddRequestSchema
@@ -26,6 +26,9 @@ async def create_booking(
         booking_data: BookingAddRequestSchema,
 ):
     room = await db.rooms.get_one_or_none(id=booking_data.room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Комната не найдена")
+
     price_per_day = room.price
     days = max((booking_data.date_to - booking_data.date_from).days, 1)
     final_price = price_per_day * days
