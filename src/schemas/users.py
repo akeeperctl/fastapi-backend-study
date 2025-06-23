@@ -3,19 +3,19 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
-class UserRequestAddScheme(BaseModel):
+class UserRequestAddSchema(BaseModel):
     """Схема на фронтенд API для добавления пользователя"""
     email: EmailStr
     password: str
 
 
-class UserAddScheme(BaseModel):
+class UserAddSchema(BaseModel):
     """Схема для добавления в репозиторий и отправки пользователя в базу данных"""
     email: EmailStr
     hashed_password: str
 
 
-class UserScheme(BaseModel):
+class UserSchema(BaseModel):
     id: int
     email: EmailStr
     first_name: Optional[str]
@@ -23,5 +23,5 @@ class UserScheme(BaseModel):
     nick_name: Optional[str]
 
 
-class UserWithHashedPwdScheme(UserScheme):
+class UserWithHashedPwdSchema(UserSchema):
     hashed_password: str

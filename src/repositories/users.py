@@ -5,12 +5,12 @@ from sqlalchemy.exc import IntegrityError
 
 from src.models.users import UsersOrm
 from src.repositories.base import BaseRepository
-from src.schemas.users import UserScheme, UserWithHashedPwdScheme
+from src.schemas.users import UserSchema, UserWithHashedPwdSchema
 
 
 class UsersRepository(BaseRepository):
     orm = UsersOrm
-    schema = UserScheme
+    schema = UserSchema
 
     async def add(self, data: BaseModel):
         try:
@@ -22,4 +22,4 @@ class UsersRepository(BaseRepository):
         query = select(self.orm).filter_by(email=email)
         result = await self.session.execute(query)
         item = result.scalars().one()
-        return UserWithHashedPwdScheme.model_validate(item, from_attributes=True)
+        return UserWithHashedPwdSchema.model_validate(item, from_attributes=True)

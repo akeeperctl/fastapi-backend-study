@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RoomAddSchema(BaseModel):
@@ -15,7 +15,7 @@ class RoomAddRequestSchema(BaseModel):
     title: str
     description: Optional[str] = None
     price: int
-    quantity: int
+    quantity: int = Field(description="Количество комнат в номере или количество мест в номере?")
 
 
 class RoomPatchRequestSchema(BaseModel):
@@ -25,12 +25,8 @@ class RoomPatchRequestSchema(BaseModel):
     quantity: Optional[int] = None
 
 
-class RoomPatchSchema(BaseModel):
+class RoomPatchSchema(RoomPatchRequestSchema):
     hotel_id: Optional[int] = None
-    title: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[int] = None
-    quantity: Optional[int] = None
 
 
 class RoomSchema(RoomAddSchema):
