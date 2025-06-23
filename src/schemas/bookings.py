@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -16,3 +16,6 @@ class BookingAddSchema(BookingAddRequestSchema):
 
 class BookingSchema(BookingAddSchema):
     id: int
+
+    updated_at: datetime
+    created_at: datetime
