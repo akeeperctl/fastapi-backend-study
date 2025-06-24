@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Body
+from datetime import date
+
+from fastapi import APIRouter, HTTPException, Body, Query
 from fastapi.openapi.models import Example
 
 from src.api.dependencies import DBDep
@@ -10,9 +12,11 @@ router = APIRouter(prefix="/hotels", tags=["Комнаты отелей"])
 @router.get("/{hotel_id}/rooms")
 async def get_rooms(
         db: DBDep,
-        hotel_id: int
+        hotel_id: int,
+        date_from: date = Query(example="2025-07-01"),
+        date_to: date = Query(example="2025-07-07"),
 ):
-    return await db.rooms.get_filtered(hotel_id=hotel_id)
+    return await db.rooms.get_filtered_by_time(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
 
 
 @router.get("/{hotel_id}/rooms/{room_id}")
@@ -33,21 +37,21 @@ async def create_room(
         hotel_id: int,
         data: RoomAddRequestSchema = Body(openapi_examples={
             "1": Example(
-                summary="Люкс комната",
+                summary="Люкс номер",
                 value={
-                    "title": "Люкс комната",
-                    "description": "Шикарная комната с телевизором и балконом",
+                    "title": "Люкс номер",
+                    "description": "Шикарный номер с телевизором и балконом",
                     "price": 10000,
-                    "quantity": 4,
+                    "quantity": 2,
                 }),
 
             "2": Example(
-                summary="Обычная комната",
+                summary="Обычный номер",
                 value={
-                    "title": "Обычная комната",
-                    "description": "Обычная комната без балкона",
-                    "price": 3000,
-                    "quantity": 2,
+                    "title": "Обычный номер",
+                    "description": "Обычный номер",
+                    "price": 1000,
+                    "quantity": 5,
                 }),
         })
 ):

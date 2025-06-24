@@ -11,8 +11,11 @@ class BaseRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_filtered(self, **filter_by):
-        query = select(self.orm).filter_by(**filter_by)
+    async def get_filtered(self, *filter, **filter_by):
+        query = (
+            select(self.orm)
+            .filter(*filter)
+            .filter_by(**filter_by))
         result = await self.session.execute(query)
 
         # model_validate валидирует что объект "hotel" соответствует схеме Pydantic HotelSchema
