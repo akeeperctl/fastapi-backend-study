@@ -7,22 +7,22 @@ class RoomAddSchema(BaseModel):
     hotel_id: int
     title: str
     description: Optional[str] = None
-    price: int
-    quantity: int
+    price: int = Field(description="Стоимость за ночь")
+    quantity: int = Field(description="Количество комнат в номере")
 
 
 class RoomAddRequestSchema(BaseModel):
     title: str
     description: Optional[str] = None
-    price: int
-    quantity: int = Field(description="Количество комнат в номере или количество мест в номере?")
+    price: int = Field(description="Стоимость за ночь")
+    quantity: int = Field(description="Количество комнат в номере")
 
 
 class RoomPatchRequestSchema(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[int] = None
-    quantity: Optional[int] = None
+    price: Optional[int] = Field(default=None, description="Стоимость за ночь")
+    quantity: Optional[int] = Field(default=None, description="Количество комнат в номере")
 
 
 class RoomPatchSchema(RoomPatchRequestSchema):
