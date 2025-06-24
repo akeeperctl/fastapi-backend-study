@@ -1,10 +1,10 @@
 from pydantic import BaseModel
 
 
-class FacilitiesAddSchema(BaseModel):
+class FacilityAddSchema(BaseModel):
     title: str
 
 
-class FacilitiesSchema(FacilitiesAddSchema):
+class FacilitySchema(FacilityAddSchema):
     id: int
 
