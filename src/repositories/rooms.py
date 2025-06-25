@@ -20,6 +20,7 @@ class RoomsRepository(BaseRepository):
             date_from: date,
             date_to: date
     ):
+        """Получение свободных номеров, в указанный промежуток времени"""
         rooms_ids_to_get = rooms_ids_for_bookings(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
 
         query = (
@@ -32,6 +33,7 @@ class RoomsRepository(BaseRepository):
         return [RoomWithRelsSchema.model_validate(orm, from_attributes=True) for orm in result.unique().scalars().all()]
 
     async def get_one_or_none_with_rels(self, **filter_by):
+        """Получение номера с загрузкой зависимостей"""
         query = (
             select(self.orm)
             .options(selectinload(self.orm.facilities))

@@ -13,6 +13,10 @@ def rooms_ids_for_bookings(
         date_to: date,
         hotel_id: Optional[int] = None,
 ):
+    """Запрос на получение идентификаторов номеров,
+        в которые можно заселиться в указанное время
+    """
+
     b = aliased(BookingsOrm)
 
     rooms_count = (
@@ -60,7 +64,5 @@ def rooms_ids_for_bookings(
             rooms_available_table.c.room_id.in_(rooms_ids_for_hotel)
         ))
     )
-
-    # print(rooms_ids_to_get.compile(bind=engine, compile_kwargs={"literal_binds": True}))
 
     return rooms_ids_to_get

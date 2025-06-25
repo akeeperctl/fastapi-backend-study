@@ -12,6 +12,7 @@ class BaseRepository:
         self.session = session
 
     async def get_filtered(self, *filter, **filter_by):
+        """Получить фильтрованные данные"""
         query = (
             select(self.orm)
             .filter(*filter)
@@ -23,9 +24,11 @@ class BaseRepository:
         return [self.schema.model_validate(item, from_attributes=True) for item in result.scalars().all()]
 
     async def get_all(self, *args, **kwargs):
+        """Получить все данные"""
         return await self.get_filtered()
 
     async def get_one_or_none(self, **filter_by):
+        """Получить единицу данных"""
         query = select(self.orm).filter_by(**filter_by)
         result = await self.session.execute(query)
         item = result.scalars().one_or_none()

@@ -19,12 +19,15 @@ class RoomsFacilitiesRepository(BaseRepository):
             room_id: int,
             facilities_ids: list[int],
     ):
+        """Заменить список идентификаторов удобств в указанной комнате"""
 
-        # facilities_ids = [1,2,4]
-        # current_facilities_ids = [1,3]
-        # facilities_ids_to_add = [facilities_ids - current_facilities_ids]
-        # facilities_ids_to_delete = []
-        # current_facilities_ids = [1,4]
+        """
+        facilities_ids = [1,2,4]
+        current_facilities_ids = [1,3]
+        facilities_ids_to_add = [facilities_ids - current_facilities_ids]
+        facilities_ids_to_delete = [current_facilities_ids - facilities_ids]
+        current_facilities_ids = [1,2,4]
+        """
 
         current_facilities_ids_q = (
             select(self.orm.facility_id)
@@ -34,15 +37,7 @@ class RoomsFacilitiesRepository(BaseRepository):
         result = await self.session.execute(current_facilities_ids_q)
         current_facilities_ids = result.scalars().all()
 
-        """
-        facilities_ids_to_save = [f_id for f_id in facilities_ids if f_id in current_facilities_ids]
-        facilities_ids_to_delete = [f_id for f_id in current_facilities_ids if f_id not in facilities_ids_to_save]
-        facilities_ids_to_add = [
-            RoomFacilityAddSchema(room_id=room_id, facility_id=f_id).model_dump()
-            for f_id in facilities_ids if f_id not in current_facilities_ids
-        ] 
-        """
-
+        # Получение идентификаторов путем вычитания множеств
         facilities_ids_to_add = [
             RoomFacilityAddSchema(room_id=room_id, facility_id=f_id).model_dump()
             for f_id in (set(facilities_ids) - set(current_facilities_ids))
