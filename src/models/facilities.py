@@ -15,3 +15,9 @@ class RoomsFacilitiesOrm(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id", ondelete="CASCADE"))
     facility_id: Mapped[int] = mapped_column(ForeignKey("facilities.id", ondelete="CASCADE"))
+
+    def __repr__(self):
+        return (f"<RoomFacilitiesOrm "
+                f"id={self.id} "
+                f"room_id={self.room_id} "
+                f"facility_id={self.facility_id}>")

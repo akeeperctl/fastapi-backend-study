@@ -80,6 +80,7 @@ async def edit_room(
 ):
     _data = RoomAddSchema(hotel_id=hotel_id, **data.model_dump())
     await db.rooms.edit(data=_data, id=room_id, hotel_id=hotel_id)
+    await db.rooms_facilities.replace_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
     await db.commit()
     return {"status": "ok"}
 
@@ -94,6 +95,7 @@ async def patch_room(
     # exclude_unset=True отбрасывает неуказанные свойства для изменения
     _data = RoomPatchSchema(hotel_id=hotel_id, **data.model_dump(exclude_unset=True))
     await db.rooms.edit(data=_data, hotel_id=hotel_id, id=room_id, exclude_unset=True)
+    await db.rooms_facilities.replace_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
     await db.commit()
     return {"status": "ok"}
 
