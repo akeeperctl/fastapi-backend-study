@@ -76,11 +76,11 @@ async def edit_room(
         db: DBDep,
         hotel_id: int,
         room_id: int,
-        data: RoomAddRequestSchema
+        room_data: RoomAddRequestSchema
 ):
-    _data = RoomAddSchema(hotel_id=hotel_id, **data.model_dump())
-    await db.rooms.edit(data=_data, id=room_id, hotel_id=hotel_id)
-    await db.rooms_facilities.replace_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
+    _room_data = RoomAddSchema(hotel_id=hotel_id, **room_data.model_dump())
+    await db.rooms.edit(data=_room_data, id=room_id, hotel_id=hotel_id)
+    await db.rooms_facilities.replace_facilities(room_id=room_id, facilities_ids=room_data.facilities_ids)
     await db.commit()
     return {"status": "ok"}
 
@@ -90,12 +90,16 @@ async def patch_room(
         db: DBDep,
         hotel_id: int,
         room_id: int,
-        data: RoomPatchRequestSchema
+        room_data: RoomPatchRequestSchema
 ):
     # exclude_unset=True отбрасывает неуказанные свойства для изменения
-    _data = RoomPatchSchema(hotel_id=hotel_id, **data.model_dump(exclude_unset=True))
-    await db.rooms.edit(data=_data, hotel_id=hotel_id, id=room_id, exclude_unset=True)
-    await db.rooms_facilities.replace_facilities(room_id=room_id, facilities_ids=data.facilities_ids)
+    _room_data_dict = room_data.model_dump(exclude_unset=True)
+    _room_data = RoomPatchSchema(hotel_id=hotel_id, **_room_data_dict)
+    await db.rooms.edit(data=_room_data, hotel_id=hotel_id, id=room_id, exclude_unset=True)
+
+    if "facilities_ids" in _room_data_dict:
+        await db.rooms_facilities.replace_facilities(room_id=room_id, facilities_ids=_room_data_dict['facilities_ids'])
+
     await db.commit()
     return {"status": "ok"}
 
