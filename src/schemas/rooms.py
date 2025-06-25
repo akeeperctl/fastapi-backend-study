@@ -2,6 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from src.schemas.facilities import FacilitySchema
+
 
 class RoomAddSchema(BaseModel):
     hotel_id: int
@@ -38,3 +40,7 @@ class RoomPatchSchema(BaseModel):
 class RoomSchema(RoomAddSchema):
     id: int
     hotel_id: int
+
+
+class RoomWithRelsSchema(RoomSchema):
+    facilities: list[FacilitySchema]
