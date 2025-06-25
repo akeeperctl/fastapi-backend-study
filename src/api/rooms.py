@@ -17,7 +17,10 @@ async def get_rooms(
         date_from: date = Query(example="2025-07-01"),
         date_to: date = Query(example="2025-07-07"),
 ):
-    return await db.rooms.get_filtered_by_time(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
+    return {
+        "status": "ok",
+        "data": await db.rooms.get_filtered_by_time(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
+    }
 
 
 @router.get("/{hotel_id}/rooms/{room_id}")
@@ -26,7 +29,7 @@ async def get_room(
         hotel_id: int,
         room_id: int
 ):
-    room = await db.rooms.get_one_or_none(hotel_id=hotel_id, id=room_id)
+    room = await db.rooms.get_one_or_none_with_rels(hotel_id=hotel_id, id=room_id)
     if not room:
         raise HTTPException(status_code=404, detail="Комната отеля не найдена")
     return {"status": "ok", "data": room}
