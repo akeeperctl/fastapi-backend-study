@@ -3,10 +3,12 @@ from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.repositories.mappers.base import DataMapper
+
 
 class BaseRepository:
     orm = None
-    schema: BaseModel = None
+    mapper = DataMapper
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -18,10 +20,7 @@ class BaseRepository:
             .filter(*filter)
             .filter_by(**filter_by))
         result = await self.session.execute(query)
-
-        # model_validate валидирует что объект "hotel" соответствует схеме Pydantic HotelSchema
-        # from_attributes=True заставляет Pydantic валидировать объект по его атрибутам
-        return [self.schema.model_validate(item, from_attributes=True) for item in result.scalars().all()]
+        return [self.mapper.map_to_domain_entity(item) for item in result.scalars().all()]
 
     async def get_all(self, *args, **kwargs):
         """Получить все данные"""
@@ -32,16 +31,16 @@ class BaseRepository:
         query = select(self.orm).filter_by(**filter_by)
         result = await self.session.execute(query)
         item = result.scalars().one_or_none()
-
         if item is None:
             return None
-        return self.schema.model_validate(item, from_attributes=True)
+        return self.mapper.map_to_domain_entity(item)
 
     async def add(self, data: BaseModel):
         """Добавить единицу данных"""
         add_stmt = insert(self.orm).values(**data.model_dump()).returning(self.orm)
         result = await self.session.execute(add_stmt)
-        return self.schema.model_validate(result.scalars().one(), from_attributes=True)
+        item = result.scalars().one()
+        return self.mapper.map_to_domain_entity(item)
 
     async def add_bulk(self, data: list[BaseModel]):
         """Добавить множество данных"""

@@ -1,18 +1,18 @@
 from datetime import date
 
 from sqlalchemy import select
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import selectinload
 
-from src.database import engine
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
+from src.repositories.mappers.mappers import RoomDataMapper
 from src.repositories.utils import rooms_ids_for_bookings
-from src.schemas.rooms import RoomSchema, RoomWithRelsSchema
+from src.schemas.rooms import RoomWithRelsSchema
 
 
 class RoomsRepository(BaseRepository):
     orm = RoomsOrm
-    schema = RoomSchema
+    mapper = RoomDataMapper
 
     async def get_filtered_by_time(
             self,

@@ -3,13 +3,13 @@ from sqlalchemy import select
 from src.models.hotels import HotelsOrm
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
+from src.repositories.mappers.mappers import HotelDataMapper
 from src.repositories.utils import rooms_ids_for_bookings
-from src.schemas.hotels import HotelSchema
 
 
 class HotelsRepository(BaseRepository):
     orm = HotelsOrm
-    schema = HotelSchema
+    mapper = HotelDataMapper
 
     async def get_filtered_by_time(
             self,
