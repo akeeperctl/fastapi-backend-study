@@ -1,9 +1,13 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
 
 # исправление для того чтобы интерпретатор мог находить src
 import sys
 from pathlib import Path
+
+from src.init import redis_connector
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -15,7 +19,17 @@ from src.api.auth import router as auth_router
 from src.config import settings
 from src.database import *
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # При старте проекта
+    await redis_connector.connect()
+    yield
+    # При выключении/перезагрузки приложения
+    await redis_connector.close()
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(hotels_router)

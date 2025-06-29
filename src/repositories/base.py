@@ -57,6 +57,7 @@ class BaseRepository:
         result = await self.session.execute(update_stmt)
         rowcount = result.rowcount
 
+        # TODO: переместить ошибки на уровень ручки
         if rowcount > 1:
             raise HTTPException(400, "Объектов больше чем 1")
         elif rowcount < 1:
@@ -67,5 +68,6 @@ class BaseRepository:
         result = await self.session.execute(delete_stmt)
         rowcount = result.rowcount
 
+        # TODO: переместить ошибки на уровень ручки
         if rowcount < 1:
             raise HTTPException(404, "Объект не найден")
