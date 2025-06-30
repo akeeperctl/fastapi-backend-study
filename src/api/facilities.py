@@ -1,6 +1,9 @@
+import json
+
 from fastapi import APIRouter, Body
 
 from src.api.dependencies import DBDep
+from src.init import redis_connector
 from src.schemas.facilities import FacilityAddSchema
 
 router = APIRouter(prefix="/facilities", tags=["Удобства в номере"])
@@ -8,7 +11,17 @@ router = APIRouter(prefix="/facilities", tags=["Удобства в номере
 
 @router.get("", description="Получить список всех возможных удобств")
 async def get_facilities(db: DBDep):
-    return {"data": await db.facilities.get_all()}
+    facilities_from_cache = await redis_connector.get("facilities")
+    if not facilities_from_cache:
+        facilities = await db.facilities.get_all()
+        facilities_schemas: list[dict] = [fac.model_dump() for fac in facilities]
+        facilities_json = json.dumps(facilities_schemas, indent=2, ensure_ascii=False)
+        await redis_connector.set("facilities", facilities_json, expire=10)
+
+        return {"data": facilities}
+    else:
+        facilities_dicts = json.loads(facilities_from_cache)
+        return {"data": facilities_dicts}
 
 
 @router.post("", description="Создать удобство")

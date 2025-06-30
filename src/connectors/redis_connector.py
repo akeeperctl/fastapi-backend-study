@@ -1,4 +1,5 @@
 import redis.asyncio as redis
+from redis.asyncio import Redis
 
 
 class RedisConnector():
@@ -12,16 +13,16 @@ class RedisConnector():
 
     async def set(self, key: str, value: str, expire: int = None):
         if expire:
-            self.redis.set(key, value, ex=expire)
+            await self.redis.set(key, value, ex=expire)
         else:
-            self.redis.set(key, value)
+            await self.redis.set(key, value)
 
     async def get(self, key: str):
-        return self.redis.get(key)
+        return await self.redis.get(key)
 
     async def delete(self, key: str):
-        self.redis.delete(key)
+        await self.redis.delete(key)
 
     async def close(self):
         if self.redis:
-            self.redis.close()
+            await self.redis.close()
