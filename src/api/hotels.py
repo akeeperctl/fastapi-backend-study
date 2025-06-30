@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.openapi.models import Example
 from fastapi.params import Query
+from fastapi_cache.decorator import cache
 
 from src.api.dependencies import PaginationDep, DBDep
 from src.schemas.hotels import HotelPatchSchema, HotelAddSchema
@@ -18,6 +19,7 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 # gt - greater_then
 # lt - lesser then
 @router.get("")
+@cache(expire=10)
 async def get_hotels(
         pagination: PaginationDep,
         db: DBDep,
