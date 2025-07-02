@@ -15,7 +15,7 @@ def test_task():
     print("Я молодец")
 
 
-@celery_instance.task
+# @celery_instance.task
 def compress_image(
         input_path: str,
 ) -> None:
