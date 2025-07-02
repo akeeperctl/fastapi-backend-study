@@ -12,6 +12,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 
+from src.api.images import router as images_router
 from src.api.facilities import router as facilities_router
 from src.api.bookings import router as bookings_router
 from src.api.rooms import router as rooms_router
@@ -39,6 +40,7 @@ app.include_router(hotels_router)
 app.include_router(rooms_router)
 app.include_router(bookings_router)
 app.include_router(facilities_router)
+app.include_router(images_router)
 
 
 @app.get("/")

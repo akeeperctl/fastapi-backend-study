@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
 
+    @property
+    def REDIS_URL(self):
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
+
     # DSN - формат строки подключения к БД
     @property
     def DB_URL(self):
