@@ -14,8 +14,8 @@ router = APIRouter(prefix="/hotels", tags=["Комнаты отелей"])
 async def get_rooms(
         db: DBDep,
         hotel_id: int,
-        date_from: date = Query(example="2025-07-01"),
-        date_to: date = Query(example="2025-07-07"),
+        date_from: date = Query(examples=["2025-07-01"]),
+        date_to: date = Query(examples=["2025-07-07"]),
 ):
     return {
         "status": "ok",
@@ -64,11 +64,12 @@ async def create_room(
     _room_data = RoomAddSchema(hotel_id=hotel_id, **room_data.model_dump())
     room = await db.rooms.add(_room_data)
 
-    room_facilities_data = [
-        RoomFacilityAddSchema(room_id=room.id, facility_id=f_id)
-        for f_id in room_data.facilities_ids
-    ]
-    await db.rooms_facilities.add_bulk(room_facilities_data)
+    if room_data.facilities_ids:
+        room_facilities_data = [
+            RoomFacilityAddSchema(room_id=room.id, facility_id=f_id)
+            for f_id in room_data.facilities_ids
+        ]
+        await db.rooms_facilities.add_bulk(room_facilities_data)
 
     await db.commit()
     return {"status": "ok", "data": room}
