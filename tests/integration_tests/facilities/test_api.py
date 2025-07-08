@@ -14,7 +14,9 @@ async def test_post_facilities(ac, db):
         json={"title": title}
     )
 
-    facility = (await db.facilities.get_all())[0]
+    result = response.json()
 
-    assert facility.title == title
+    assert result["data"]['title'] == title
+    assert result["status"] == "ok"
     assert response.status_code == 200
+
