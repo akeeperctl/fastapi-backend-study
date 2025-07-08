@@ -1,6 +1,8 @@
 import json
 from unittest import mock
 
+from src.schemas.users import UserRequestAddSchema, UserSchema
+
 mock.patch("fastapi_cache.decorator.cache", new=lambda *args, **kwargs: lambda f: f).start()
 
 import pytest
@@ -66,8 +68,34 @@ async def setup_database(is_test_mode):
 async def register_user(setup_database, ac):
     await ac.post(
         "/auth/register",
-        json={
-            "email": "kot@pes.com",
-            "password": "12345",
-        }
+        json=UserRequestAddSchema(
+            email="kot@pes.com",
+            password="12345",
+        ).model_dump()
     )
+
+
+@pytest.fixture(scope='session', autouse=True)
+async def login_user(register_user, ac):
+    response = await ac.post(
+        "/auth/login",
+        json=UserRequestAddSchema(
+            email="kot@pes.com",
+            password="12345",
+        ).model_dump()
+    )
+
+    assert response.status_code == 200
+    assert response.json().get("access_token")
+
+
+@pytest.fixture(scope='function')
+async def logged_in_user(login_user, ac):
+    response = await ac.get("/auth/me")
+
+    data = UserSchema.model_validate(response.json().get("data"), from_attributes=True)
+
+    assert response.status_code == 200
+    assert data.id
+
+    return data
