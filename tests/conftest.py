@@ -1,21 +1,21 @@
 import json
 from unittest import mock
 
-from src.schemas.users import UserRequestAddSchema, UserSchema
-
-mock.patch("fastapi_cache.decorator.cache", new=lambda *args, **kwargs: lambda f: f).start()
-
 import pytest
 from httpx import AsyncClient, ASGITransport
 
+from src.schemas.users import UserRequestAddSchema
+from src.schemas.hotels import HotelAddSchema
+from src.schemas.rooms import RoomAddSchema
+from src.utils.db_manager import DBManager
 from src.api.dependencies import get_db
 from src.config import settings
 from src.database import Base, engine_null_pool, async_session_maker_null_pool
 from src.models import *
+
+# mock patch'и должны быть определены до импорта того, что мокается
+mock.patch("fastapi_cache.decorator.cache", new=lambda *args, **kwargs: lambda f: f).start()
 from src.main import app
-from src.schemas.hotels import HotelAddSchema
-from src.schemas.rooms import RoomAddSchema
-from src.utils.db_manager import DBManager
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -75,9 +75,9 @@ async def register_user(setup_database, ac):
     )
 
 
-@pytest.fixture(scope='session', autouse=True)
-async def login_user(register_user, ac):
-    response = await ac.post(
+@pytest.fixture(scope='session')
+async def logged_in_ac(register_user, ac):
+    await ac.post(
         "/auth/login",
         json=UserRequestAddSchema(
             email="kot@pes.com",
@@ -85,17 +85,6 @@ async def login_user(register_user, ac):
         ).model_dump()
     )
 
-    assert response.status_code == 200
-    assert response.json().get("access_token")
+    assert ac.cookies["access_token"]
 
-
-@pytest.fixture(scope='function')
-async def logged_in_user(login_user, ac):
-    response = await ac.get("/auth/me")
-
-    data = UserSchema.model_validate(response.json().get("data"), from_attributes=True)
-
-    assert response.status_code == 200
-    assert data.id
-
-    return data
+    yield ac
