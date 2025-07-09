@@ -1,10 +1,7 @@
-import json
-
 from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
-from src.init import redis_connector
 from src.schemas.facilities import FacilityAddSchema
 
 router = APIRouter(prefix="/facilities", tags=["Удобства в номере"])
