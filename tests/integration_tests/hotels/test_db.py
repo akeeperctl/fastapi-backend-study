@@ -1,11 +1,12 @@
 from datetime import date
 
-from src.schemas.bookings import BookingAddSchema, BookingAddRequestSchema
+from src.schemas.bookings import BookingAddSchema, BookingPatchRequestSchema
 
 
 async def test_booking_crud(db):
     user_id = (await db.users.get_all())[0].id
     room_id = (await db.rooms.get_all())[0].id
+
     booking_data = BookingAddSchema(
         user_id=user_id,
         room_id=room_id,
@@ -24,7 +25,7 @@ async def test_booking_crud(db):
     assert read_booking.user_id == user_id
 
     # update
-    update_booking_data = BookingAddRequestSchema(
+    update_booking_data = BookingPatchRequestSchema(
         room_id=room_id,
         date_from=date(year=2025, month=8, day=20),
         date_to=date(year=2025, month=8, day=25),

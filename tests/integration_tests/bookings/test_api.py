@@ -1,6 +1,6 @@
 async def test_add_booking(db, logged_in_ac):
-    room_id = (await db.rooms.get_all())[0].id
-    for i in range(5):
+    room_id = (await db.rooms.get_all())[0]
+    for _ in range(5):
         response = await logged_in_ac.post(
             "/bookings",
             json={

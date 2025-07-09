@@ -9,13 +9,30 @@ class BookingAddRequestSchema(BaseModel):
     date_to: date
 
 
-class BookingAddSchema(BookingAddRequestSchema):
+class BookingPatchRequestSchema(BaseModel):
+    room_id: int
+    date_from: date
+    date_to: date
+
+
+class BookingAddSchema(BaseModel):
     user_id: int
     price: int
 
+    room_id: int
+    date_from: date
+    date_to: date
 
-class BookingSchema(BookingAddSchema):
+
+class BookingSchema(BaseModel):
     id: int
+
+    user_id: int
+    price: int
+
+    room_id: int
+    date_from: date
+    date_to: date
 
     updated_at: datetime
     created_at: datetime

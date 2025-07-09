@@ -1,4 +1,4 @@
-class BookingRoomNotFoundException(Exception):
+class BookingRoomNotAvailableException(Exception):
     """Номер недоступен для бронирования"""
 
     def __init__(self, *args):

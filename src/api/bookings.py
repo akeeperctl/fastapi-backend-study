@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.repositories.exceptions.bookings import BookingRoomNotFoundException
+from src.repositories.exceptions.bookings import BookingRoomNotAvailableException
 from src.schemas.bookings import BookingAddSchema, BookingAddRequestSchema
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
@@ -41,8 +41,8 @@ async def create_booking(
     )
 
     try:
-        await db.bookings.add(_booking_data)
-    except BookingRoomNotFoundException:
+        await db.bookings.add_booking(_booking_data, hotel_id=room.hotel_id)
+    except BookingRoomNotAvailableException:
         raise HTTPException(status_code=404, detail="Номер недоступен для бронирования на указанный срок")
 
     await db.commit()
