@@ -7,19 +7,6 @@ from src.schemas.bookings import BookingAddSchema, BookingAddRequestSchema
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 
-@router.get("", description="Получить все бронирования")
-async def get_bookings(db: DBDep):
-    return {"data": await db.bookings.get_all()}
-
-
-@router.get("/me", description="Получить бронирования авторизованного пользователя")
-async def get_me_bookings(
-        user_id: UserIdDep,
-        db: DBDep
-):
-    return {"data": await db.bookings.get_filtered(user_id=user_id)}
-
-
 @router.post("", description="Забронировать номер")
 async def create_booking(
         user_id: UserIdDep,
@@ -47,3 +34,26 @@ async def create_booking(
 
     await db.commit()
     return {"status": "ok", "data": _booking_data}
+
+
+@router.get("", description="Получить все бронирования")
+async def get_bookings(db: DBDep):
+    return {"data": await db.bookings.get_all()}
+
+
+@router.get("/me", description="Получить бронирования авторизованного пользователя")
+async def get_me_bookings(
+        user_id: UserIdDep,
+        db: DBDep
+):
+    return {"data": await db.bookings.get_filtered(user_id=user_id)}
+
+
+@router.delete("/{booking_id}", description="Удалить определенное бронирование")
+async def delete_booking(
+        db: DBDep,
+        booking_id: int
+):
+    await db.bookings.delete(id=booking_id)
+    await db.commit()
+    return {"status": "ok"}
