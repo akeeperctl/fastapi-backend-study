@@ -2,7 +2,7 @@
 # Представляет данные, их свойства, позволяет не нарушать DRY
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 
 class HotelAddSchema(BaseModel):

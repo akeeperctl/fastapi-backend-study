@@ -1,5 +1,4 @@
 import redis.asyncio as redis
-from redis.asyncio import Redis
 
 
 class RedisConnector():
