@@ -6,7 +6,7 @@ from src.database import Base
 
 class HotelsOrm(Base):
     # название таблицы
-    __tablename__ = 'hotels'
+    __tablename__ = "hotels"
 
     # Если у нас нет специфических ограничений, то мы можем не использовать mapped_column()
 

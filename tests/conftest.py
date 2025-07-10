@@ -30,7 +30,7 @@ async def get_db_null_pool():
         yield db
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 async def db() -> DBManager:
     async for db in get_db_null_pool():
         yield db
@@ -39,14 +39,14 @@ async def db() -> DBManager:
 app.dependency_overrides[get_db] = get_db_null_pool
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 async def ac():
     ts = ASGITransport(app=app)
     async with AsyncClient(transport=ts, base_url="http://localhost:8000/") as client:
         yield client
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 async def setup_database(is_test_mode):
     async with engine_null_pool.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -66,25 +66,25 @@ async def setup_database(is_test_mode):
         await _db.commit()
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 async def register_user(setup_database, ac):
     await ac.post(
         "/auth/register",
         json=UserRequestAddSchema(
             email="kot@pes.com",
             password="12345",
-        ).model_dump()
+        ).model_dump(),
     )
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 async def logged_in_ac(register_user, ac):
     await ac.post(
         "/auth/login",
         json=UserRequestAddSchema(
             email="kot@pes.com",
             password="12345",
-        ).model_dump()
+        ).model_dump(),
     )
 
     assert ac.cookies["access_token"]

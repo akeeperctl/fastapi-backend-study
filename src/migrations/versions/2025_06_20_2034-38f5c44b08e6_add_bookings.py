@@ -28,12 +28,8 @@ def upgrade() -> None:
         sa.Column("date_from", sa.DateTime(), nullable=False),
         sa.Column("date_to", sa.DateTime(), nullable=False),
         sa.Column("price", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["room_id"], ["rooms.id"], name=op.f("fk_bookings_room_id_rooms")
-        ),
-        sa.ForeignKeyConstraint(
-            ["user_id"], ["users.id"], name=op.f("fk_bookings_user_id_users")
-        ),
+        sa.ForeignKeyConstraint(["room_id"], ["rooms.id"], name=op.f("fk_bookings_room_id_rooms")),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_bookings_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_bookings")),
     )
 

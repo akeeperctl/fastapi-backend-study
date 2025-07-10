@@ -16,9 +16,9 @@ class RoomsFacilitiesRepository(BaseRepository):
     mapper = RoomsFacilityDataMapper
 
     async def replace_facilities(
-            self,
-            room_id: int,
-            facilities_ids: list[int],
+        self,
+        room_id: int,
+        facilities_ids: list[int],
     ):
         """Заменить список идентификаторов удобств в указанной комнате"""
 
@@ -31,9 +31,7 @@ class RoomsFacilitiesRepository(BaseRepository):
         """
 
         current_facilities_ids_q = (
-            select(self.orm.facility_id)
-            .select_from(self.orm)
-            .where(self.orm.room_id == room_id)
+            select(self.orm.facility_id).select_from(self.orm).where(self.orm.room_id == room_id)
         )
         result = await self.session.execute(current_facilities_ids_q)
         current_facilities_ids = result.scalars().all()
@@ -46,11 +44,7 @@ class RoomsFacilitiesRepository(BaseRepository):
         facilities_ids_to_delete = set(current_facilities_ids) - set(facilities_ids)
 
         if facilities_ids_to_add or facilities_ids_to_delete:
-            stmt = (
-                select(self.orm)
-                .select_from(self.orm)
-                .where(self.orm.room_id == room_id)
-            )
+            stmt = select(self.orm).select_from(self.orm).where(self.orm.room_id == room_id)
 
             if facilities_ids_to_add:
                 facilities_add_ids = (

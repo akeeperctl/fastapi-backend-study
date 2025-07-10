@@ -5,12 +5,14 @@ from pydantic import BaseModel, EmailStr
 
 class UserRequestAddSchema(BaseModel):
     """Схема на фронтенд API для добавления пользователя"""
+
     email: EmailStr
     password: str
 
 
 class UserAddSchema(BaseModel):
     """Схема для добавления в репозиторий и отправки пользователя в базу данных"""
+
     email: EmailStr
     hashed_password: str
 

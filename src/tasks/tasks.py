@@ -17,7 +17,7 @@ def test_task():
 
 # @celery_instance.task
 def compress_image(
-        input_path: str,
+    input_path: str,
 ) -> None:
     """
     Сжимает изображение по ширине до каждого из sizes (px),
@@ -32,19 +32,15 @@ def compress_image(
     with Image.open(input_path) as img:
         orig_name, ext = os.path.splitext(os.path.basename(input_path))
         for width in sizes:
-
             # Вычисляем новую высоту по сохранению пропорций
-            w_percent = (width / float(img.width))
+            w_percent = width / float(img.width)
             height = int(float(img.height) * w_percent)
 
             # Ресайз
             resized = img.resize((width, height), Image.Resampling.LANCZOS)
 
             # Формируем имя и сохраняем
-            output_path = os.path.join(
-                output_dir,
-                f"{orig_name}_{width}px{ext}"
-            )
+            output_path = os.path.join(output_dir, f"{orig_name}_{width}px{ext}")
 
             # При сохранении можно управлять качеством для JPEG
             save_kwargs = {}

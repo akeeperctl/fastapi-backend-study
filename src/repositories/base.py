@@ -15,10 +15,7 @@ class BaseRepository:
 
     async def get_filtered(self, *filter, **filter_by):
         """Получить фильтрованные данные"""
-        query = (
-            select(self.orm)
-            .filter(*filter)
-            .filter_by(**filter_by))
+        query = select(self.orm).filter(*filter).filter_by(**filter_by)
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(item) for item in result.scalars().all()]
 
@@ -49,9 +46,9 @@ class BaseRepository:
 
     async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
         update_stmt = (
-            update(self.orm).
-            filter_by(**filter_by).
-            values(**data.model_dump(exclude_unset=exclude_unset))
+            update(self.orm)
+            .filter_by(**filter_by)
+            .values(**data.model_dump(exclude_unset=exclude_unset))
         )
 
         result = await self.session.execute(update_stmt)

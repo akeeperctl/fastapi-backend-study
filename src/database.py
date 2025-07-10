@@ -15,17 +15,18 @@ async_session_maker_null_pool = async_sessionmaker(bind=engine_null_pool, expire
 
 # нужен для того, чтобы мы наследовали все модели в проекте
 class Base(DeclarativeBase):
-
     # нужно для того, чтобы алхимия генерировала имена ограничений,
     # которые алембик будет использовать для подстановки
     # иначе они будут None и алембик подставит None, что не даст сделать alembic downgrade,
     # т.к. alembic будет пытаться удалить ограничение, которое ищет по НЕУКАЗАННОМУ ИМЕНИ
-    metadata = MetaData(naming_convention={
-        "ix": "ix_%(column_0_label)s",
-        "uq": "uq_%(table_name)s_%(column_0_name)s",
-        "ck": "ck_%(table_name)s_`%(constraint_name)s`",
-        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        "pk": "pk_%(table_name)s"
-    })
+    metadata = MetaData(
+        naming_convention={
+            "ix": "ix_%(column_0_label)s",
+            "uq": "uq_%(table_name)s_%(column_0_name)s",
+            "ck": "ck_%(table_name)s_`%(constraint_name)s`",
+            "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+            "pk": "pk_%(table_name)s",
+        }
+    )
 
     pass

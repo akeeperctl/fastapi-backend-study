@@ -18,12 +18,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.drop_constraint(
-        op.f("fk_bookings_room_id_rooms"), "bookings", type_="foreignkey"
-    )
-    op.drop_constraint(
-        op.f("fk_bookings_user_id_users"), "bookings", type_="foreignkey"
-    )
+    op.drop_constraint(op.f("fk_bookings_room_id_rooms"), "bookings", type_="foreignkey")
+    op.drop_constraint(op.f("fk_bookings_user_id_users"), "bookings", type_="foreignkey")
     op.create_foreign_key(
         op.f("fk_bookings_room_id_rooms"),
         "bookings",
@@ -43,12 +39,8 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_constraint(
-        op.f("fk_bookings_user_id_users"), "bookings", type_="foreignkey"
-    )
-    op.drop_constraint(
-        op.f("fk_bookings_room_id_rooms"), "bookings", type_="foreignkey"
-    )
+    op.drop_constraint(op.f("fk_bookings_user_id_users"), "bookings", type_="foreignkey")
+    op.drop_constraint(op.f("fk_bookings_room_id_rooms"), "bookings", type_="foreignkey")
     op.create_foreign_key(
         op.f("fk_bookings_user_id_users"), "bookings", "users", ["user_id"], ["id"]
     )

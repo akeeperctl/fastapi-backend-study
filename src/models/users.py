@@ -8,7 +8,7 @@ from src.database import Base
 
 class UsersOrm(Base):
     # название таблицы
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     # Если у нас нет специфических ограничений, то мы можем не использовать mapped_column()
 
@@ -19,4 +19,3 @@ class UsersOrm(Base):
     first_name: Mapped[Optional[str]] = mapped_column(String(100))
     last_name: Mapped[Optional[str]] = mapped_column(String(100))
     nick_name: Mapped[Optional[str]] = mapped_column(String(100))
-

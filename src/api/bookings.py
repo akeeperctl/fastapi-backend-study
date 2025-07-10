@@ -9,9 +9,9 @@ router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 @router.post("", description="Забронировать номер")
 async def create_booking(
-        user_id: UserIdDep,
-        db: DBDep,
-        booking_data: BookingAddRequestSchema,
+    user_id: UserIdDep,
+    db: DBDep,
+    booking_data: BookingAddRequestSchema,
 ):
     room = await db.rooms.get_one_or_none(id=booking_data.room_id)
     if not room:
@@ -22,15 +22,15 @@ async def create_booking(
     final_price = price_per_day * days
 
     _booking_data = BookingAddSchema(
-        price=final_price,
-        user_id=user_id,
-        **booking_data.model_dump()
+        price=final_price, user_id=user_id, **booking_data.model_dump()
     )
 
     try:
         await db.bookings.add_booking(_booking_data, hotel_id=room.hotel_id)
     except BookingRoomNotAvailableException:
-        raise HTTPException(status_code=404, detail="Номер недоступен для бронирования на указанный срок")
+        raise HTTPException(
+            status_code=404, detail="Номер недоступен для бронирования на указанный срок"
+        )
 
     await db.commit()
     return {"status": "ok", "data": _booking_data}
@@ -42,10 +42,7 @@ async def get_bookings(db: DBDep):
 
 
 @router.get("/me", description="Получить бронирования авторизованного пользователя")
-async def get_me_bookings(
-        user_id: UserIdDep,
-        db: DBDep
-):
+async def get_me_bookings(user_id: UserIdDep, db: DBDep):
     return {"data": await db.bookings.get_filtered(user_id=user_id)}
 
 

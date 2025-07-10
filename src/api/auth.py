@@ -8,22 +8,21 @@ router = APIRouter(prefix="/auth", tags=["Авторизация и аутент
 
 
 @router.get("/me")
-async def get_me(
-        db: DBDep,
-        user_id: UserIdDep
-):
+async def get_me(db: DBDep, user_id: UserIdDep):
     return {"data": await db.users.get_one_or_none(id=user_id)}
 
 
 @router.post("/login")
 async def login_user(
-        db: DBDep,
-        data: UserRequestAddSchema,
-        response: Response,
+    db: DBDep,
+    data: UserRequestAddSchema,
+    response: Response,
 ):
     user = await db.users.get_user_with_hashed_pwd(email=data.email)
     if not user:
-        raise HTTPException(status_code=401, detail={"msg": "Пользователь с таким email не существует"})
+        raise HTTPException(
+            status_code=401, detail={"msg": "Пользователь с таким email не существует"}
+        )
     if not AuthService().verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=403, detail={"msg": "Неверный пароль"})
 
@@ -33,10 +32,7 @@ async def login_user(
 
 
 @router.post("/register")
-async def register_user(
-        db: DBDep,
-        data: UserRequestAddSchema
-):
+async def register_user(db: DBDep, data: UserRequestAddSchema):
     hashed_password = AuthService().hash_password(data.password)
     new_user_data = UserAddSchema(email=data.email, hashed_password=hashed_password)
 
@@ -46,8 +42,6 @@ async def register_user(
 
 
 @router.post("/logout")
-async def logout_user(
-        response: Response
-):
+async def logout_user(response: Response):
     response.delete_cookie("access_token")
     return {"status": "ok"}

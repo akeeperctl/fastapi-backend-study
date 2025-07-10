@@ -1,47 +1,35 @@
 import pytest
 
 
-@pytest.mark.parametrize("email, password, status_code", [
-    ("test1@mail.ru", "test1_password", 200),
-    ("test2@mail.ru", "test2_password", 200),
-    ("test3@mail.ru", "test3_password", 200),
-    ("test3@mail.ru", "test3_password", 409),
-    ("xyz_mail_ru", "test3_password", 422),
-])
-async def test_register(
-        email, password, status_code,
-        ac
-):
-    response = await ac.post(
-        "/auth/register",
-        json={
-            "email": email,
-            "password": password
-        }
-    )
+@pytest.mark.parametrize(
+    "email, password, status_code",
+    [
+        ("test1@mail.ru", "test1_password", 200),
+        ("test2@mail.ru", "test2_password", 200),
+        ("test3@mail.ru", "test3_password", 200),
+        ("test3@mail.ru", "test3_password", 409),
+        ("xyz_mail_ru", "test3_password", 422),
+    ],
+)
+async def test_register(email, password, status_code, ac):
+    response = await ac.post("/auth/register", json={"email": email, "password": password})
 
     assert response.status_code == status_code
 
 
-@pytest.mark.parametrize("email, password, status_code", [
-    ("test1@mail.ru", "test1_password", 200),
-    ("test2@mail.ru", "test2_password", 200),
-    ("test3@mail.ru", "test3_password", 200),
-    ("test6@mail.ru", "test6_password", 401),
-    ("test2@mail.ru", "test1_password", 403),
-])
-async def test_login_getme_logout(
-        email, password, status_code,
-        ac
-):
+@pytest.mark.parametrize(
+    "email, password, status_code",
+    [
+        ("test1@mail.ru", "test1_password", 200),
+        ("test2@mail.ru", "test2_password", 200),
+        ("test3@mail.ru", "test3_password", 200),
+        ("test6@mail.ru", "test6_password", 401),
+        ("test2@mail.ru", "test1_password", 403),
+    ],
+)
+async def test_login_getme_logout(email, password, status_code, ac):
     # авторизация
-    login_response = await ac.post(
-        "/auth/login",
-        json={
-            "email": email,
-            "password": password
-        }
-    )
+    login_response = await ac.post("/auth/login", json={"email": email, "password": password})
 
     assert login_response.status_code == status_code
 

@@ -19,7 +19,7 @@ from src.api.rooms import router as rooms_router
 from src.api.hotels import router as hotels_router
 from src.api.auth import router as auth_router
 from src.init import redis_connector
-from src.database import * # noqa
+from src.database import *  # noqa
 
 
 @asynccontextmanager
