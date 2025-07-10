@@ -49,11 +49,11 @@ async def get_me_bookings(
     return {"data": await db.bookings.get_filtered(user_id=user_id)}
 
 
-@router.delete("/{booking_id}", description="Удалить определенное бронирование")
-async def delete_booking(
-        db: DBDep,
-        booking_id: int
-):
-    await db.bookings.delete(id=booking_id)
-    await db.commit()
-    return {"status": "ok"}
+# @router.delete("/{booking_id}", description="Удалить определенное бронирование")
+# async def delete_booking(
+#         db: DBDep,
+#         booking_id: int
+# ):
+#     await db.bookings.delete(id=booking_id)
+#     await db.commit()
+#     return {"status": "ok"}

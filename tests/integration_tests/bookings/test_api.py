@@ -1,5 +1,7 @@
 import pytest
 
+from conftest import get_db_null_pool
+
 
 @pytest.mark.parametrize("room_id, date_from, date_to, status_code", [
     (1, "2025-07-01", "2025-07-10", 200),
@@ -32,38 +34,19 @@ async def test_add_booking(
 
 
 @pytest.fixture(scope="session")
-async def delete_all_bookings(ac):
-    get_response = await ac.get(
-        "/bookings"
-    )
-    bookings = get_response.json().get("data")
-    assert bookings
-    assert len(bookings) > 0
-
-    for i in bookings:
-
-        id = i.get("id")
-        assert id
-
-        delete_response = await ac.delete(f"/bookings/{id}")
-        assert delete_response.status_code == 200
-        assert delete_response.json().get("status") == "ok"
-
-    response = await ac.get(
-        "/bookings"
-    )
-    bookings = response.json().get("data")
-    assert isinstance(bookings, list)
-    assert len(bookings) == 0
+async def delete_all_bookings():
+    async for db_ in get_db_null_pool():
+        await db_.bookings.delete()
+        await db_.commit()
 
 
-@pytest.mark.parametrize("room_id, date_from, date_to, status_code, bookings_count", [
-    (1, "2025-07-01", "2025-07-10", 200, 1),
-    (1, "2025-07-02", "2025-07-11", 200, 2),
-    (1, "2025-07-03", "2025-07-12", 200, 3)
+@pytest.mark.parametrize("room_id, date_from, date_to, bookings_count", [
+    (1, "2025-07-01", "2025-07-10", 1),
+    (1, "2025-07-02", "2025-07-11", 2),
+    (1, "2025-07-03", "2025-07-12", 3)
 ])
 async def test_add_and_get_my_booking(
-        room_id, date_from, date_to, status_code, bookings_count,
+        room_id, date_from, date_to, bookings_count,
         logged_in_ac, delete_all_bookings
 ):
     # создание новых бронирований
@@ -75,26 +58,21 @@ async def test_add_and_get_my_booking(
             "date_to": date_to,
         }
     )
+    assert response.status_code == 200
 
-    assert response.status_code == status_code
-    if status_code == 200:
-        result = response.json()
-        data = result.get("data")
+    result = response.json()
+    data = result.get("data")
 
-        assert data
-        assert isinstance(result, dict)
-        assert isinstance(data, dict)
+    assert data
+    assert isinstance(result, dict)
+    assert isinstance(data, dict)
 
     # получение созданных бронирований
-    response = await logged_in_ac.get(
-        "bookings/me"
-    )
+    response = await logged_in_ac.get("bookings/me")
 
-    assert response.status_code == status_code
-    if status_code == 200:
-        result = response.json()
-        data = result.get("data")
+    result = response.json()
+    data = result.get("data")
 
-        assert isinstance(result, dict)
-        assert isinstance(data, list)
-        assert len(data) == bookings_count
+    assert isinstance(result, dict)
+    assert isinstance(data, list)
+    assert len(data) == bookings_count
