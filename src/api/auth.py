@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response
 
 from src.api.dependencies import UserIdDep, DBDep
+from src.exceptions import UserAlreadyExistException
 from src.schemas.users import UserRequestAddSchema, UserAddSchema
 from src.services.auth import AuthService
 
@@ -36,8 +37,13 @@ async def register_user(db: DBDep, data: UserRequestAddSchema):
     hashed_password = AuthService().hash_password(data.password)
     new_user_data = UserAddSchema(email=data.email, hashed_password=hashed_password)
 
-    await db.users.add(new_user_data)
-    await db.commit()
+    try:
+        await db.users.add(new_user_data)
+        await db.commit()
+    except UserAlreadyExistException as e:
+        raise HTTPException(
+                status_code=409, detail={"msg": e.message}
+            )
     return {"status": "ok"}
 
 

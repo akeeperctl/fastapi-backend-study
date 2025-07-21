@@ -7,6 +7,7 @@ from fastapi.params import Query
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import PaginationDep, DBDep
+from src.exceptions import DateFromLaterThanDateToException, HotelNotExistException
 from src.schemas.hotels import HotelPatchSchema, HotelAddSchema
 
 # prefix - это путь к ручкам этого роутера
@@ -28,17 +29,23 @@ async def get_hotels(
     date_from: date = Query(examples=["2025-07-01"]),
     date_to: date = Query(examples=["2025-07-07"]),
 ):
+
     per_page = pagination.per_page or 5
     page = per_page * (pagination.page - 1)
 
-    return await db.hotels.get_filtered_by_time(
-        date_from=date_from,
-        date_to=date_to,
-        location=location,
-        title=title,
-        limit=per_page,
-        offset=page,
-    )
+    try:
+        hotels = await db.hotels.get_filtered_by_time(
+            date_from=date_from,
+            date_to=date_to,
+            location=location,
+            title=title,
+            limit=per_page,
+            offset=page,
+        )
+    except DateFromLaterThanDateToException as e:
+        raise HTTPException(status_code=422, detail=e.message)
+
+    return hotels
 
 
 @router.get("/{hotel_id}")
@@ -46,9 +53,10 @@ async def get_hotel(
     db: DBDep,
     hotel_id: int,
 ):
-    hotel = await db.hotels.get_one_or_none(id=hotel_id)
-    if not hotel:
-        raise HTTPException(status_code=404, detail="Отель не найден")
+    try:
+        hotel = await db.hotels.get_one_or_none(id=hotel_id)
+    except HotelNotExistException as e:
+        raise HTTPException(status_code=404, detail=e.message)
     return {"status": "ok", "data": hotel}
 
 

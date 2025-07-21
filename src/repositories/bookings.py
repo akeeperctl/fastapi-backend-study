@@ -5,7 +5,7 @@ from sqlalchemy import select, and_
 from src.models import RoomsOrm
 from src.models.bookings import BookingsOrm
 from src.repositories.base import BaseRepository
-from src.repositories.exceptions.bookings import BookingRoomNotAvailableException
+from src.exceptions import BookingRoomNotAvailableException
 from src.repositories.mappers.mappers import BookingDataMapper
 from src.repositories.utils import rooms_ids_for_bookings
 from src.schemas.bookings import BookingAddSchema

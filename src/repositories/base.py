@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.exceptions import RoomNotExistException, EditedTooMatchRoomsException
 from src.repositories.mappers.base import DataMapper
 
 
@@ -44,7 +45,7 @@ class BaseRepository:
         add_stmt = insert(self.orm).values([item.model_dump() for item in data])
         await self.session.execute(add_stmt)
 
-    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> int:
         update_stmt = (
             update(self.orm)
             .filter_by(**filter_by)
@@ -52,19 +53,15 @@ class BaseRepository:
         )
 
         result = await self.session.execute(update_stmt)
-        rowcount = result.rowcount
+        rowcount: int = result.rowcount
 
-        # TODO: переместить ошибки на уровень ручки
-        if rowcount > 1:
-            raise HTTPException(400, "Объектов больше чем 1")
-        elif rowcount < 1:
-            raise HTTPException(404, "Объект не найден")
+        return rowcount
+
 
     async def delete(self, **filter_by) -> None:
         delete_stmt = delete(self.orm).filter_by(**filter_by)
         result = await self.session.execute(delete_stmt)
         rowcount = result.rowcount
 
-        # TODO: переместить ошибки на уровень ручки
         if rowcount < 1:
             raise HTTPException(404, "Объект не найден")
