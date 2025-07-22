@@ -1,10 +1,11 @@
 from datetime import date
 
-from fastapi import APIRouter, HTTPException, Body, Query
+from fastapi import APIRouter, Body, Query
 from fastapi.openapi.models import Example
 
 from src.api.dependencies import DBDep
-from src.exceptions import DateFromLaterThanDateToException, RoomNotExistException, HotelNotExistException
+from src.exceptions import (check_date_from_later_date_to, ObjectNotExistException, RoomNotFoundHTTPException,
+                            HotelNotFoundHTTPException)
 from src.schemas.facilities import RoomFacilityAddSchema
 from src.schemas.rooms import (
     RoomAddSchema,
@@ -23,25 +24,23 @@ async def get_rooms(
     date_from: date = Query(examples=["2025-07-01"]),
     date_to: date = Query(examples=["2025-07-07"]),
 ):
-    try:
-        data = {
-            "status": "ok",
-            "data": await db.rooms.get_filtered_by_time(
-                hotel_id=hotel_id, date_from=date_from, date_to=date_to
-            ),
-        }
-    except DateFromLaterThanDateToException as e:
-        raise HTTPException(status_code=422, detail=e.message)
+    check_date_from_later_date_to(date_from, date_to)
+
+    data = {
+        "status": "ok",
+        "data": await db.rooms.get_filtered_by_time(
+            hotel_id=hotel_id, date_from=date_from, date_to=date_to
+        ),
+    }
 
     return data
 
 
 @router.get("/{hotel_id}/rooms/{room_id}")
 async def get_room(db: DBDep, hotel_id: int, room_id: int):
-    try:
-        room = await db.rooms.get_one_or_none_with_rels(hotel_id=hotel_id, id=room_id)
-    except RoomNotExistException as e:
-        raise HTTPException(status_code=404, detail=e.message)
+    room = await db.rooms.get_one_or_none_with_rels(hotel_id=hotel_id, id=room_id)
+    if not room:
+        raise RoomNotFoundHTTPException
     return {"status": "ok", "data": room}
 
 
@@ -75,9 +74,9 @@ async def create_room(
     ),
 ):
     try:
-        db.hotels.get_one_or_none(id=hotel_id)
-    except HotelNotExistException as e:
-        raise HTTPException(status_code=404, detail=e.message)
+        db.hotels.get_one(id=hotel_id)
+    except ObjectNotExistException:
+        raise HotelNotFoundHTTPException
 
     _room_data = RoomAddSchema(hotel_id=hotel_id, **room_data.model_dump())
     room = await db.rooms.add(_room_data)
@@ -98,9 +97,14 @@ async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomAddRe
     _room_data = RoomAddSchema(hotel_id=hotel_id, **room_data.model_dump())
 
     try:
+        db.hotels.get_one(id=hotel_id)
+    except ObjectNotExistException:
+        raise HotelNotFoundHTTPException
+
+    try:
         await db.rooms.edit(data=_room_data, id=room_id, hotel_id=hotel_id)
-    except RoomNotExistException as e:
-        raise HTTPException(status_code=404, detail=e.message)
+    except ObjectNotExistException:
+        raise RoomNotFoundHTTPException
 
     await db.rooms_facilities.replace_facilities(
         room_id=room_id, facilities_ids=room_data.facilities_ids
@@ -116,9 +120,13 @@ async def patch_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomPatc
     _room_data = RoomPatchSchema(hotel_id=hotel_id, **_room_data_dict)
 
     try:
+        db.hotels.get_one(id=hotel_id)
+    except ObjectNotExistException:
+        raise HotelNotFoundHTTPException
+    try:
         await db.rooms.edit(data=_room_data, hotel_id=hotel_id, id=room_id, exclude_unset=True)
-    except RoomNotExistException as e:
-        raise HTTPException(status_code=404, detail=e.message)
+    except ObjectNotExistException as e:
+        raise RoomNotFoundHTTPException
 
     if "facilities_ids" in _room_data_dict:
         await db.rooms_facilities.replace_facilities(
@@ -132,9 +140,13 @@ async def patch_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomPatc
 @router.delete("/{hotel_id}/rooms/{room_id}")
 async def delete_room(db: DBDep, hotel_id: int, room_id: int):
     try:
+        await db.hotels.get_one(id=hotel_id)
+    except ObjectNotExistException:
+        raise HotelNotFoundHTTPException
+    try:
         await db.rooms.delete(hotel_id=hotel_id, id=room_id)
-    except RoomNotExistException as e:
-        raise HTTPException(status_code=404, detail=e.message)
+    except ObjectNotExistException:
+        raise RoomNotFoundHTTPException
 
     await db.commit()
     return {"status": "ok"}

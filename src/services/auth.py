@@ -1,10 +1,10 @@
 from datetime import datetime, timezone, timedelta
 
 import jwt
-from fastapi import HTTPException
 from passlib.context import CryptContext
 
 from src.config import settings
+from src.exceptions import AuthTokenErrorException
 
 
 class AuthService:
@@ -34,5 +34,5 @@ class AuthService:
             return jwt.decode(
                 encoded_token, key=settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM
             )
-        except (jwt.exceptions.DecodeError, jwt.exceptions.ExpiredSignatureError):
-            raise HTTPException(status_code=401, detail={"msg": "Неверный токен"})
+        except (jwt.exceptions.DecodeError, jwt.exceptions.ExpiredSignatureError) as e:
+            raise AuthTokenErrorException from e

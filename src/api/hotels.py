@@ -7,7 +7,8 @@ from fastapi.params import Query
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import PaginationDep, DBDep
-from src.exceptions import DateFromLaterThanDateToException, HotelNotExistException
+from src.exceptions import (DateFromLaterThanDateToException, ObjectNotExistException, check_date_from_later_date_to,
+                            HotelNotFoundHTTPException)
 from src.schemas.hotels import HotelPatchSchema, HotelAddSchema
 
 # prefix - это путь к ручкам этого роутера
@@ -29,7 +30,7 @@ async def get_hotels(
     date_from: date = Query(examples=["2025-07-01"]),
     date_to: date = Query(examples=["2025-07-07"]),
 ):
-
+    check_date_from_later_date_to(date_from, date_to)
     per_page = pagination.per_page or 5
     page = per_page * (pagination.page - 1)
 
@@ -43,7 +44,7 @@ async def get_hotels(
             offset=page,
         )
     except DateFromLaterThanDateToException as e:
-        raise HTTPException(status_code=422, detail=e.message)
+        raise HTTPException(status_code=422, detail=e.detail)
 
     return hotels
 
@@ -54,9 +55,9 @@ async def get_hotel(
     hotel_id: int,
 ):
     try:
-        hotel = await db.hotels.get_one_or_none(id=hotel_id)
-    except HotelNotExistException as e:
-        raise HTTPException(status_code=404, detail=e.message)
+        hotel = await db.hotels.get_one(id=hotel_id)
+    except ObjectNotExistException:
+        raise HotelNotFoundHTTPException
     return {"status": "ok", "data": hotel}
 
 

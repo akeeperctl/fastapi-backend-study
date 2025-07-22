@@ -1,37 +1,61 @@
+from fastapi import HTTPException
+
+
 class DomickException(Exception):
+    detail = ""
+
     def __init__(self, *args):
         if args:
-            self.message = args[0]
+            self.detail = args[0]
         else:
-            self.message = None
+            self.detail = None
 
     def __str__(self):
-        if self.message:
-            return f"{self.__class__.__name__}, {self.message}"
+        if self.detail:
+            return f"{self.__class__.__name__}, {self.detail}"
         else:
             return f"{self.__class__.__name__}"
 
-class BookingRoomNotAvailableException(DomickException):
-    def __init__(self):
-        super().__init__("""Номер недоступен для бронирования""")
 
-class UserAlreadyExistException(DomickException):
-    def __init__(self):
-        super().__init__("""Такой пользователь уже существует""")
+class BookingRoomNotAvailableException(DomickException):
+    detail = "Комната недоступна для бронирования"
+
 
 class DateFromLaterThanDateToException(DomickException):
-    def __init__(self):
-        super().__init__("""Дата заезда позже даты выезда""")
+    detail = "Дата заезда позже даты выезда"
 
-class HotelNotExistException(DomickException):
-    def __init__(self):
-        super().__init__("""Такой отель не существует""")
 
-class RoomNotExistException(DomickException):
-    def __init__(self):
-        super().__init__("""Такой номер не существует""")
+class EditedTooMatchObjects(DomickException):
+    detail = "Отредактировано слишком много объектов"
 
-class EditedTooMatchRoomsException(DomickException):
-    def __init__(self):
-        super().__init__("Отредактировано слишком много комнат")
 
+class ObjectAlreadyExistsException(DomickException):
+    detail = "Объект уже существует в БД"
+
+
+class ObjectNotExistException(DomickException):
+    detail = "Объект не был найден в БД"
+
+
+class AuthTokenErrorException(DomickException):
+    detail = "Неверный токен"
+
+
+class DomickHTTPException(HTTPException):
+    status_code = 500
+    detail = None
+
+
+class HotelNotFoundHTTPException(DomickHTTPException):
+    status_code = 404
+    detail = "Отель не найден"
+
+
+class RoomNotFoundHTTPException(DomickHTTPException):
+    status_code = 404
+    detail = "Номер не найден"
+
+
+def check_date_from_later_date_to(date_from, date_to):
+    if date_from >= date_to:
+        raise HTTPException(status_code=422, detail="Дата заезда не может быть позже даты выезда")

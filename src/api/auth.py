@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response
 
 from src.api.dependencies import UserIdDep, DBDep
-from src.exceptions import UserAlreadyExistException
+from src.exceptions import ObjectAlreadyExistsException
 from src.schemas.users import UserRequestAddSchema, UserAddSchema
 from src.services.auth import AuthService
 
@@ -22,7 +22,7 @@ async def login_user(
     user = await db.users.get_user_with_hashed_pwd(email=data.email)
     if not user:
         raise HTTPException(
-            status_code=401, detail={"msg": "Пользователь с таким email не существует"}
+            status_code=409, detail={"msg": "Пользователь с таким email не существует"}
         )
     if not AuthService().verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=403, detail={"msg": "Неверный пароль"})
@@ -40,10 +40,10 @@ async def register_user(db: DBDep, data: UserRequestAddSchema):
     try:
         await db.users.add(new_user_data)
         await db.commit()
-    except UserAlreadyExistException as e:
+    except ObjectAlreadyExistsException:
         raise HTTPException(
-                status_code=409, detail={"msg": e.message}
-            )
+            status_code=409, detail={"msg": "Пользователь с таким email не существует"}
+        )
     return {"status": "ok"}
 
 

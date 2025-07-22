@@ -40,9 +40,7 @@ class BookingsRepository(BaseRepository):
         result = await self.session.execute(query)
         room_data = result.scalars().one_or_none()
         if not room_data:
-            raise BookingRoomNotAvailableException(
-                "Номер недоступна для бронирования на указанный срок"
-            )
+            raise BookingRoomNotAvailableException
 
         added_booking = await super().add(data)
         return added_booking

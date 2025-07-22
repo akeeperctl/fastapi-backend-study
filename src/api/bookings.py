@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.exceptions import BookingRoomNotAvailableException
+from src.exceptions import RoomNotFoundHTTPException, BookingRoomNotAvailableException
 from src.schemas.bookings import BookingAddSchema, BookingAddRequestSchema
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
@@ -15,7 +15,7 @@ async def create_booking(
 ):
     room = await db.rooms.get_one_or_none(id=booking_data.room_id)
     if not room:
-        raise HTTPException(status_code=404, detail="Номер не найден")
+        raise RoomNotFoundHTTPException
 
     price_per_day = room.price
     days = max((booking_data.date_to - booking_data.date_from).days, 1)
@@ -29,7 +29,7 @@ async def create_booking(
         await db.bookings.add_booking(_booking_data, hotel_id=room.hotel_id)
     except BookingRoomNotAvailableException:
         raise HTTPException(
-            status_code=404, detail="Номер недоступен для бронирования на указанный срок"
+            status_code=403, detail="Номер недоступен для бронирования на указанный срок"
         )
 
     await db.commit()

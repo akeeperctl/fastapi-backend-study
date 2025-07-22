@@ -1,9 +1,10 @@
-from fastapi import HTTPException
+from asyncpg.exceptions import UniqueViolationError
 from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.exceptions import RoomNotExistException, EditedTooMatchRoomsException
+from src.exceptions import ObjectAlreadyExistsException, ObjectNotExistException, EditedTooMatchObjects
 from src.repositories.mappers.base import DataMapper
 
 
@@ -33,11 +34,29 @@ class BaseRepository:
             return None
         return self.mapper.map_to_domain_entity(item)
 
+    async def get_one(self, **filter_by):
+        """Получить единицу данных"""
+        query = select(self.orm).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        item = result.scalars().one()
+        if item is None:
+            raise ObjectNotExistException
+
+        return self.mapper.map_to_domain_entity(item)
+
     async def add(self, data: BaseModel):
         """Добавить единицу данных"""
-        add_stmt = insert(self.orm).values(**data.model_dump()).returning(self.orm)
-        result = await self.session.execute(add_stmt)
-        item = result.scalars().one()
+
+        try:
+            add_stmt = insert(self.orm).values(**data.model_dump()).returning(self.orm)
+            result = await self.session.execute(add_stmt)
+            item = result.scalars().one()
+        except IntegrityError as e:
+            if isinstance(e.orig.__cause__, UniqueViolationError):
+                raise ObjectAlreadyExistsException
+            else:
+                raise e
+
         return self.mapper.map_to_domain_entity(item)
 
     async def add_bulk(self, data: list[BaseModel]):
@@ -55,8 +74,10 @@ class BaseRepository:
         result = await self.session.execute(update_stmt)
         rowcount: int = result.rowcount
 
-        return rowcount
-
+        if rowcount > 1:
+            raise EditedTooMatchObjects
+        elif rowcount < 1:
+            raise ObjectNotExistException
 
     async def delete(self, **filter_by) -> None:
         delete_stmt = delete(self.orm).filter_by(**filter_by)
@@ -64,4 +85,4 @@ class BaseRepository:
         rowcount = result.rowcount
 
         if rowcount < 1:
-            raise HTTPException(404, "Объект не найден")
+            raise ObjectNotExistException

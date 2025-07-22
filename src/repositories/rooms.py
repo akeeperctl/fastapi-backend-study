@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from src.exceptions import DateFromLaterThanDateToException, RoomNotExistException, EditedTooMatchRoomsException
+from src.exceptions import DateFromLaterThanDateToException, EditedTooMatchObjects, ObjectNotExistException
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import RoomDataMapper
@@ -19,17 +19,8 @@ class RoomsRepository(BaseRepository):
     async def add(self, data: BaseModel):
         await super().add(data)
 
-    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
-        row_count = await super().edit(data, exclude_unset=exclude_unset, **filter_by)
-        if row_count > 1:
-            raise EditedTooMatchRoomsException()
-        elif row_count < 1:
-            raise RoomNotExistException()
-
     async def get_filtered_by_time(self, hotel_id: int, date_from: date, date_to: date):
         """Получение свободных номеров, в указанный промежуток времени"""
-        if date_from > date_to:
-            raise DateFromLaterThanDateToException()
 
         rooms_ids_to_get = rooms_ids_for_bookings(
             hotel_id=hotel_id, date_from=date_from, date_to=date_to
@@ -53,13 +44,4 @@ class RoomsRepository(BaseRepository):
         result = await self.session.execute(query)
         item = result.scalars().one_or_none()
 
-        if item is None:
-            raise RoomNotExistException()
-
         return RoomWithRelsSchema.model_validate(item, from_attributes=True)
-
-    async def get_one_or_none(self, **filter_by):
-        item = await super().get_one_or_none(**filter_by)
-        if item is None:
-            raise RoomNotExistException()
-        return item
