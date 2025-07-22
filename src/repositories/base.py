@@ -1,4 +1,5 @@
 from asyncpg.exceptions import UniqueViolationError
+from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.exc import IntegrityError
@@ -52,9 +53,11 @@ class BaseRepository:
             result = await self.session.execute(add_stmt)
             item = result.scalars().one()
         except IntegrityError as e:
+            logger.error(f"Не удалось добавить данные в БД, тип ошибки: {type(e.orig.__cause__)=}")
             if isinstance(e.orig.__cause__, UniqueViolationError):
                 raise ObjectAlreadyExistsException
             else:
+                logger.error(f"Незнакомая ошибка, тип ошибки: {type(e.orig.__cause__)=}")
                 raise e
 
         return self.mapper.map_to_domain_entity(item)

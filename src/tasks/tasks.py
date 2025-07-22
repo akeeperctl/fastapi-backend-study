@@ -3,6 +3,7 @@ import os
 from time import sleep
 
 from PIL import Image
+from loguru import logger
 
 from src.database import async_session_maker_null_pool
 from src.tasks.celery_app import celery_instance
@@ -12,7 +13,7 @@ from src.utils.db_manager import DBManager
 @celery_instance.task
 def test_task():
     sleep(5)
-    print("Я молодец")
+    logger.info("Я молодец")
 
 
 # @celery_instance.task
@@ -24,6 +25,8 @@ def compress_image(
     сохраняя пропорции, и сохраняет в output_dir.
     Имена файлов: originalname_{width}px.ext
     """
+
+    logger.debug(f"Вызывается функция compress_image с {input_path=}")
 
     sizes: tuple = (1000, 500, 200)
     output_dir: str = "src/static/images"
@@ -49,13 +52,13 @@ def compress_image(
                 save_kwargs["optimize"] = True
             resized.save(output_path, **save_kwargs)
 
-            print(f"Сохранено: {output_path}")
+            logger.info(f"Изображение сохранено в следующих размерах: {sizes} в папке {output_path}")
 
 
 async def send_emails_to_users_with_today_checkin_helper():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         bookings = await db.bookings.get_bookings_with_today_checkin()
-        print(f"{bookings=}")
+        logger.debug(f"{bookings=}")
 
 
 @celery_instance.task(name="booking_today_checkin")

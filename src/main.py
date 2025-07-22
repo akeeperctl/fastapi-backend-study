@@ -6,9 +6,12 @@ from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 
+
 # исправление для того чтобы интерпретатор мог находить src
 import sys
 from pathlib import Path
+
+from loguru import logger
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -27,6 +30,7 @@ async def lifespan(app: FastAPI):
     # При старте проекта
     await redis_connector.connect()
     FastAPICache.init(RedisBackend(redis_connector.redis), prefix="fastapi-cache")
+    logger.info("FastAPI cache initialized")
     yield
     # При выключении/перезагрузки приложения
     await redis_connector.close()

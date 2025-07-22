@@ -1,4 +1,5 @@
 import redis.asyncio as redis
+from loguru import logger
 
 
 class RedisConnector:
@@ -8,7 +9,9 @@ class RedisConnector:
         self.redis = None
 
     async def connect(self):
+        logger.info(f"Подключение к серверу Redis host={self.host} port={self.port}")
         self.redis = await redis.Redis(host=self.host, port=self.port)
+        logger.info(f"Успешное подключение к серверу Redis host={self.host} port={self.port}")
 
     async def set(self, key: str, value: str, expire: int = None):
         if expire:
