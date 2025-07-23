@@ -25,7 +25,7 @@ class DateFromLaterDateToException(DomickException):
     detail = "Дата заезда позже даты выезда"
 
 
-class EditedTooMatchObjects(DomickException):
+class EditedTooMatchObjectsException(DomickException):
     detail = "Отредактировано слишком много объектов"
 
 
@@ -49,9 +49,24 @@ class AuthTokenErrorException(DomickException):
     detail = "Неверный токен"
 
 
+class UserAlreadyExistsException(DomickException):
+    detail = "Такой пользователь уже существует в БД"
+
+
+class UserPasswordWrongException(DomickException):
+    detail = "Введен неверный пароль"
+
+
+class UserNotDefinedException(DomickException):
+    detail = "Текущий пользователь не определен"
+
+
 class DomickHTTPException(HTTPException):
     status_code = 500
     detail = None
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
 
 
 class HotelNotFoundHTTPException(DomickHTTPException):
@@ -67,3 +82,28 @@ class RoomNotFoundHTTPException(DomickHTTPException):
 class DateFromLaterDateToHTTPException(DomickHTTPException):
     status_code = 422
     detail = "Дата заезда не может быть позже даты выезда"
+
+
+class AuthTokenErrorHTTPException(DomickHTTPException):
+    status_code = 422
+    detail = "Неверный токен"
+
+
+class AuthTokenNotFoundHTTPException(DomickHTTPException):
+    status_code = 401
+    detail = "Токен доступа не найден "
+
+
+class UserAlreadyExistsHTTPException(DomickHTTPException):
+    status_code = 409
+    detail = "Такой пользователь уже существует"
+
+
+class UserPasswordWrongHTTPException(DomickHTTPException):
+    status_code = 403
+    detail = "Неверный пароль"
+
+
+class BookingRoomNotAvailableHTTPException(DomickHTTPException):
+    status_code = 403
+    detail = "Номер недоступен для бронирования на указанный срок"

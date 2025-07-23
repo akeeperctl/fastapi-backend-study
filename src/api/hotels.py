@@ -52,8 +52,8 @@ async def get_hotel(
 ):
     try:
         hotel = await HotelService(db).get_hotel(hotel_id)
-    except HotelNotFoundException:
-        raise HotelNotFoundHTTPException
+    except HotelNotFoundException as e:
+        raise HotelNotFoundHTTPException from e
     return {"status": "ok", "data": hotel}
 
 
@@ -91,8 +91,8 @@ async def create_hotel(
 async def edit_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAddSchema):
     try:
         await HotelService(db).edit_hotel(hotel_id, hotel_data)
-    except HotelNotFoundException:
-        raise HotelNotFoundHTTPException
+    except HotelNotFoundException as e:
+        raise HotelNotFoundHTTPException from e
     return {"status": "ok"}
 
 
@@ -104,8 +104,8 @@ async def patch_hotel(
 ):
     try:
         await HotelService(db).patch_hotel(hotel_id, hotel_data)
-    except HotelNotFoundException:
-        raise HotelNotFoundHTTPException
+    except HotelNotFoundException as e:
+        raise HotelNotFoundHTTPException from e
     return {"status": "ok"}
 
 
@@ -117,6 +117,6 @@ async def delete_hotel(
 ):
     try:
         await HotelService(db).delete_hotel(hotel_id)
-    except HotelNotFoundException:
-        raise HotelNotFoundHTTPException
+    except HotelNotFoundException as e:
+        raise HotelNotFoundHTTPException from e
     return {"status": "ok"}

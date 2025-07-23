@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.exceptions import RoomNotFoundHTTPException, BookingRoomNotAvailableException
-from src.schemas.bookings import BookingAddSchema, BookingAddRequestSchema
+from src.exceptions import (BookingRoomNotAvailableException,
+                            BookingRoomNotAvailableHTTPException)
+from src.schemas.bookings import BookingAddRequestSchema
+from src.services.bookings import BookingService
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
@@ -13,37 +15,24 @@ async def create_booking(
     db: DBDep,
     booking_data: BookingAddRequestSchema,
 ):
-    room = await db.rooms.get_one_or_none(id=booking_data.room_id)
-    if not room:
-        raise RoomNotFoundHTTPException
-
-    price_per_day = room.price
-    days = max((booking_data.date_to - booking_data.date_from).days, 1)
-    final_price = price_per_day * days
-
-    _booking_data = BookingAddSchema(
-        price=final_price, user_id=user_id, **booking_data.model_dump()
-    )
-
     try:
-        await db.bookings.add_booking(_booking_data, hotel_id=room.hotel_id)
+        booking = await BookingService(db).create_booking(user_id, booking_data)
     except BookingRoomNotAvailableException:
-        raise HTTPException(
-            status_code=403, detail="Номер недоступен для бронирования на указанный срок"
-        )
+        raise BookingRoomNotAvailableHTTPException
 
-    await db.commit()
-    return {"status": "ok", "data": _booking_data}
+    return {"status": "ok", "data": booking}
 
 
 @router.get("", description="Получить все бронирования")
 async def get_bookings(db: DBDep):
-    return {"data": await db.bookings.get_all()}
+    bookings = await BookingService(db).get_bookings(db)
+    return {"status": "ok", "data": bookings}
 
 
 @router.get("/me", description="Получить бронирования авторизованного пользователя")
 async def get_me_bookings(user_id: UserIdDep, db: DBDep):
-    return {"data": await db.bookings.get_filtered(user_id=user_id)}
+    bookings = await BookingService(db).get_me_bookings(user_id)
+    return {"status": "ok", "data": bookings}
 
 
 # @router.delete("/{booking_id}", description="Удалить определенное бронирование")

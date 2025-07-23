@@ -13,7 +13,6 @@ import pytest
 )
 async def test_register(email, password, status_code, ac):
     response = await ac.post("/auth/register", json={"email": email, "password": password})
-
     assert response.status_code == status_code
 
 
@@ -34,7 +33,9 @@ async def test_login_getme_logout(email, password, status_code, ac):
     assert login_response.status_code == status_code
 
     if status_code == 200:
-        assert login_response.json().get("access_token")
+        access_token = login_response.json().get("data")
+        assert login_response.json().get("status") == "ok"
+        assert access_token
 
         # информация о себе 1
         me_response = await ac.get("/auth/me")

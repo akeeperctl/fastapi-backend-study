@@ -15,7 +15,7 @@ class RoomService(BaseService, DataChecker):
             date_to: date
     ):
         self._check_dates(date_from, date_to)
-        await self._check_hotel_available(self.db, hotel_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
 
         rooms = await self.db.rooms.get_filtered_by_time(
             hotel_id=hotel_id,
@@ -29,7 +29,7 @@ class RoomService(BaseService, DataChecker):
             room_id: int,
             hotel_id: int
     ):
-        await self._check_hotel_available(self.db, hotel_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
         room = await self.db.rooms.get_one_with_rels(
             id=room_id,
             hotel_id=hotel_id
@@ -41,7 +41,7 @@ class RoomService(BaseService, DataChecker):
             room_data: RoomAddRequestSchema,
             hotel_id: int
     ):
-        await self._check_hotel_available(self.db, hotel_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
 
         _room_data = RoomAddSchema(hotel_id=hotel_id, **room_data.model_dump())
         room = await self.db.rooms.add(_room_data)
@@ -63,8 +63,8 @@ class RoomService(BaseService, DataChecker):
             room_data: RoomAddRequestSchema
     ) -> None:
 
-        await self._check_hotel_available(self.db, hotel_id)
-        await self._check_room_available(self.db, room_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
+        await self._check_and_get_room(self.db, room_id)
 
         _room_data = RoomAddSchema(hotel_id=hotel_id, **room_data.model_dump())
 
@@ -81,8 +81,8 @@ class RoomService(BaseService, DataChecker):
             room_id: int,
             room_data: RoomPatchRequestSchema
     ):
-        await self._check_hotel_available(self.db, hotel_id)
-        await self._check_room_available(self.db, room_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
+        await self._check_and_get_room(self.db, room_id)
 
         # exclude_unset=True отбрасывает неуказанные свойства для изменения
         _room_data_dict = room_data.model_dump(exclude_unset=True)
@@ -97,8 +97,8 @@ class RoomService(BaseService, DataChecker):
         await self.db.commit()
 
     async def delete_room(self, hotel_id: int, room_id: int):
-        await self._check_hotel_available(self.db, hotel_id)
-        await self._check_room_available(self.db, room_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
+        await self._check_and_get_room(self.db, room_id)
 
         await self.db.rooms.delete(hotel_id=hotel_id, id=room_id)
         await self.db.commit()

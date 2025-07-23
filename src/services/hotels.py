@@ -39,19 +39,19 @@ class HotelService(BaseService, DataChecker):
         return hotel
 
     async def edit_hotel(self, hotel_id: int, hotel_data: HotelAddSchema) -> None:
-        await self._check_hotel_available(self.db, hotel_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
 
         await self.db.hotels.edit(id=hotel_id, data=hotel_data)
         await self.db.commit()
 
     async def patch_hotel(self, hotel_id: int, hotel_data: HotelPatchSchema) -> None:
-        await self._check_hotel_available(self.db, hotel_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
 
         await self.db.hotels.edit(id=hotel_id, data=hotel_data, exclude_unset=True)
         await self.db.commit()
 
     async def delete_hotel(self, hotel_id: int):
-        await self._check_hotel_available(self.db, hotel_id)
+        await self._check_and_get_hotel(self.db, hotel_id)
 
         await self.db.hotels.delete(id=hotel_id)
         await self.db.commit()
