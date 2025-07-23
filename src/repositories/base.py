@@ -5,7 +5,7 @@ from sqlalchemy import select, insert, delete, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.exceptions import ObjectAlreadyExistsException, ObjectNotExistException, EditedTooMatchObjects
+from src.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException
 from src.repositories.mappers.base import DataMapper
 
 
@@ -41,8 +41,7 @@ class BaseRepository:
         result = await self.session.execute(query)
         item = result.scalars().one()
         if item is None:
-            raise ObjectNotExistException
-
+            raise ObjectNotFoundException
         return self.mapper.map_to_domain_entity(item)
 
     async def add(self, data: BaseModel):
@@ -67,25 +66,25 @@ class BaseRepository:
         add_stmt = insert(self.orm).values([item.model_dump() for item in data])
         await self.session.execute(add_stmt)
 
-    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> int:
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by):
         update_stmt = (
             update(self.orm)
             .filter_by(**filter_by)
             .values(**data.model_dump(exclude_unset=exclude_unset))
         )
 
-        result = await self.session.execute(update_stmt)
-        rowcount: int = result.rowcount
-
-        if rowcount > 1:
-            raise EditedTooMatchObjects
-        elif rowcount < 1:
-            raise ObjectNotExistException
+        await self.session.execute(update_stmt)
+        # rowcount: int = result.rowcount
+        #
+        # if rowcount > 1:
+        #     raise EditedTooMatchObjects
+        # elif rowcount < 1:
+        #     raise ObjectNotFoundException
 
     async def delete(self, **filter_by) -> None:
         delete_stmt = delete(self.orm).filter_by(**filter_by)
-        result = await self.session.execute(delete_stmt)
-        rowcount = result.rowcount
-
-        if rowcount < 1:
-            raise ObjectNotExistException
+        await self.session.execute(delete_stmt)
+        # rowcount = result.rowcount
+        #
+        # if rowcount < 1:
+        #     raise ObjectNotFoundException

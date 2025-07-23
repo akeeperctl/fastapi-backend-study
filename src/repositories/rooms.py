@@ -1,23 +1,19 @@
 from datetime import date
 
-from pydantic import BaseModel
 from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import selectinload
 
-from src.exceptions import DateFromLaterThanDateToException, EditedTooMatchObjects, ObjectNotExistException
+from src.exceptions import RoomNotFoundException
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
-from src.repositories.mappers.mappers import RoomDataMapper
+from src.repositories.mappers.mappers import RoomDataMapper, RoomWithRelsDataMapper
 from src.repositories.utils import rooms_ids_for_bookings
-from src.schemas.rooms import RoomWithRelsSchema
 
 
 class RoomsRepository(BaseRepository):
     orm = RoomsOrm
     mapper = RoomDataMapper
-
-    async def add(self, data: BaseModel):
-        await super().add(data)
 
     async def get_filtered_by_time(self, hotel_id: int, date_from: date, date_to: date):
         """Получение свободных номеров, в указанный промежуток времени"""
@@ -34,14 +30,17 @@ class RoomsRepository(BaseRepository):
 
         result = await self.session.execute(query)
         return [
-            RoomWithRelsSchema.model_validate(orm, from_attributes=True)
+            self.mapper.map_to_domain_entity(orm)
             for orm in result.unique().scalars().all()
         ]
 
-    async def get_one_or_none_with_rels(self, **filter_by):
+    async def get_one_with_rels(self, **filter_by):
         """Получение номера с загрузкой зависимостей"""
         query = select(self.orm).options(selectinload(self.orm.facilities)).filter_by(**filter_by)
         result = await self.session.execute(query)
-        item = result.scalars().one_or_none()
+        try:
+            item = result.scalars().one()
+        except NoResultFound:
+            raise RoomNotFoundException
 
-        return RoomWithRelsSchema.model_validate(item, from_attributes=True)
+        return RoomWithRelsDataMapper.map_to_domain_entity(item)

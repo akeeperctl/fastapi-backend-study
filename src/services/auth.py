@@ -5,9 +5,10 @@ from passlib.context import CryptContext
 
 from src.config import settings
 from src.exceptions import AuthTokenErrorException
+from src.services.base import BaseService
 
 
-class AuthService:
+class AuthService(BaseService):
     """Вся история связанная с авторизацией"""
 
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

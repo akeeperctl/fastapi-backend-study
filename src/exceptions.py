@@ -21,7 +21,7 @@ class BookingRoomNotAvailableException(DomickException):
     detail = "Комната недоступна для бронирования"
 
 
-class DateFromLaterThanDateToException(DomickException):
+class DateFromLaterDateToException(DomickException):
     detail = "Дата заезда позже даты выезда"
 
 
@@ -33,8 +33,16 @@ class ObjectAlreadyExistsException(DomickException):
     detail = "Объект уже существует в БД"
 
 
-class ObjectNotExistException(DomickException):
+class ObjectNotFoundException(DomickException):
     detail = "Объект не был найден в БД"
+
+
+class RoomNotFoundException(DomickException):
+    detail = "Номер не найден в БД"
+
+
+class HotelNotFoundException(DomickException):
+    detail = "Отель не найден в БД"
 
 
 class AuthTokenErrorException(DomickException):
@@ -56,6 +64,6 @@ class RoomNotFoundHTTPException(DomickHTTPException):
     detail = "Номер не найден"
 
 
-def check_date_from_later_date_to(date_from, date_to):
-    if date_from >= date_to:
-        raise HTTPException(status_code=422, detail="Дата заезда не может быть позже даты выезда")
+class DateFromLaterDateToHTTPException(DomickHTTPException):
+    status_code = 422
+    detail = "Дата заезда не может быть позже даты выезда"

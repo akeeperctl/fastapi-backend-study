@@ -41,9 +41,13 @@ class RoomPatchSchema(BaseModel):
     quantity: Optional[int] = None
 
 
-class RoomSchema(RoomAddSchema):
+class RoomSchema(BaseModel):
     id: int
     hotel_id: int
+    title: str
+    description: Optional[str] = None
+    price: int
+    quantity: int
 
 
 class RoomWithRelsSchema(RoomSchema):
