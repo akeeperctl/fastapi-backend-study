@@ -4,8 +4,12 @@ from fastapi import Query, Depends, Request
 from pydantic import BaseModel
 
 from src.database import async_session_maker
-from src.exceptions import (AuthTokenErrorException, AuthTokenErrorHTTPException, UserNotDefinedException,
-                            AuthTokenNotFoundHTTPException)
+from src.exceptions import (
+    AuthTokenErrorException,
+    AuthTokenErrorHTTPException,
+    UserNotDefinedException,
+    AuthTokenNotFoundHTTPException,
+)
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager
 
@@ -37,7 +41,7 @@ def get_current_user_id(token: str = Depends(get_token)) -> int:
         if not user_id:
             raise UserNotDefinedException
     except AuthTokenErrorException as e:
-        raise AuthTokenErrorHTTPException
+        raise AuthTokenErrorHTTPException from e
 
     return user_id
 

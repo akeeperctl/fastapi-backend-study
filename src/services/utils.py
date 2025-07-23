@@ -1,7 +1,11 @@
 from datetime import date
 
-from src.exceptions import (DateFromLaterDateToException, HotelNotFoundException, ObjectNotFoundException,
-                            RoomNotFoundException)
+from src.exceptions import (
+    DateFromLaterDateToException,
+    HotelNotFoundException,
+    ObjectNotFoundException,
+    RoomNotFoundException,
+)
 from src.schemas.hotels import HotelSchema
 from src.schemas.rooms import RoomSchema
 from src.utils.db_manager import DBManager
@@ -28,4 +32,3 @@ class DataChecker:
         except ObjectNotFoundException as e:
             raise RoomNotFoundException from e
         return room
-

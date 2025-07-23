@@ -1,8 +1,12 @@
 from fastapi import APIRouter, Response
 
 from src.api.dependencies import UserIdDep, DBDep
-from src.exceptions import (UserPasswordWrongException, UserPasswordWrongHTTPException,
-                            UserAlreadyExistsException, UserAlreadyExistsHTTPException)
+from src.exceptions import (
+    UserPasswordWrongException,
+    UserPasswordWrongHTTPException,
+    UserAlreadyExistsException,
+    UserAlreadyExistsHTTPException,
+)
 from src.schemas.users import UserRequestAddSchema
 from src.services.auth import AuthService
 
@@ -16,9 +20,9 @@ async def get_me(db: DBDep, user_id: UserIdDep):
 
 @router.post("/login")
 async def login_user(
-        db: DBDep,
-        data: UserRequestAddSchema,
-        response: Response,
+    db: DBDep,
+    data: UserRequestAddSchema,
+    response: Response,
 ):
     try:
         access_token = await AuthService(db).login_user(data)

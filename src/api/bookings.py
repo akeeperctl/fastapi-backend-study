@@ -1,8 +1,7 @@
 from fastapi import APIRouter
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.exceptions import (BookingRoomNotAvailableException,
-                            BookingRoomNotAvailableHTTPException)
+from src.exceptions import BookingRoomNotAvailableException, BookingRoomNotAvailableHTTPException
 from src.schemas.bookings import BookingAddRequestSchema
 from src.services.bookings import BookingService
 

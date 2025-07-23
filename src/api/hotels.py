@@ -7,8 +7,11 @@ from fastapi.params import Query
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import PaginationDep, DBDep
-from src.exceptions import (DateFromLaterDateToException, HotelNotFoundHTTPException,
-                            HotelNotFoundException)
+from src.exceptions import (
+    DateFromLaterDateToException,
+    HotelNotFoundHTTPException,
+    HotelNotFoundException,
+)
 from src.schemas.hotels import HotelPatchSchema, HotelAddSchema
 from src.services.hotels import HotelService
 
@@ -24,21 +27,15 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("")
 @cache(expire=10)
 async def get_hotels(
-        pagination: PaginationDep,
-        db: DBDep,
-        title: Optional[str] = Query(default=None, description="Название отеля"),
-        location: Optional[str] = Query(default=None, description="Местонахождение отеля"),
-        date_from: date = Query(examples=["2025-07-01"]),
-        date_to: date = Query(examples=["2025-07-07"]),
+    pagination: PaginationDep,
+    db: DBDep,
+    title: Optional[str] = Query(default=None, description="Название отеля"),
+    location: Optional[str] = Query(default=None, description="Местонахождение отеля"),
+    date_from: date = Query(examples=["2025-07-01"]),
+    date_to: date = Query(examples=["2025-07-07"]),
 ):
     try:
-        hotels = await HotelService(db).get_hotels(
-            pagination,
-            title,
-            location,
-            date_from,
-            date_to
-        )
+        hotels = await HotelService(db).get_hotels(pagination, title, location, date_from, date_to)
     except DateFromLaterDateToException as e:
         raise HTTPException(status_code=422, detail=e.detail)
 
@@ -47,8 +44,8 @@ async def get_hotels(
 
 @router.get("/{hotel_id}")
 async def get_hotel(
-        db: DBDep,
-        hotel_id: int,
+    db: DBDep,
+    hotel_id: int,
 ):
     try:
         hotel = await HotelService(db).get_hotel(hotel_id)
@@ -61,25 +58,25 @@ async def get_hotel(
 # title
 @router.post("")
 async def create_hotel(
-        db: DBDep,
-        data: HotelAddSchema = Body(
-            openapi_examples={
-                "1": Example(
-                    summary="Сочи",
-                    value={
-                        "title": "Отель 5 звезд у моря",
-                        "location": "Сочи",
-                    },
-                ),
-                "2": Example(
-                    summary="Дубай",
-                    value={
-                        "title": "Отель 5 звезд у песка",
-                        "location": "Дубай",
-                    },
-                ),
-            }
-        ),
+    db: DBDep,
+    data: HotelAddSchema = Body(
+        openapi_examples={
+            "1": Example(
+                summary="Сочи",
+                value={
+                    "title": "Отель 5 звезд у моря",
+                    "location": "Сочи",
+                },
+            ),
+            "2": Example(
+                summary="Дубай",
+                value={
+                    "title": "Отель 5 звезд у песка",
+                    "location": "Дубай",
+                },
+            ),
+        }
+    ),
 ):
     hotel = await HotelService(db).add_hotel(data)
     return {"status": "ok", "data": hotel}
@@ -98,9 +95,9 @@ async def edit_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAddSchema):
 
 @router.patch("/{hotel_id}")
 async def patch_hotel(
-        db: DBDep,
-        hotel_id: int,
-        hotel_data: HotelPatchSchema,
+    db: DBDep,
+    hotel_id: int,
+    hotel_data: HotelPatchSchema,
 ):
     try:
         await HotelService(db).patch_hotel(hotel_id, hotel_data)
@@ -112,8 +109,8 @@ async def patch_hotel(
 # Чаще всего нужно делать так, чтобы удалялась конкретная сущность
 @router.delete("/{hotel_id}")
 async def delete_hotel(
-        db: DBDep,
-        hotel_id: int,
+    db: DBDep,
+    hotel_id: int,
 ):
     try:
         await HotelService(db).delete_hotel(hotel_id)

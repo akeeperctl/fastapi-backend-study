@@ -8,12 +8,12 @@ from src.services.utils import DataChecker
 
 class HotelService(BaseService, DataChecker):
     async def get_hotels(
-            self,
-            pagination,
-            title: Optional[str],
-            location: Optional[str],
-            date_from: date,
-            date_to: date,
+        self,
+        pagination,
+        title: Optional[str],
+        location: Optional[str],
+        date_from: date,
+        date_to: date,
     ):
         self._check_dates(date_from, date_to)
         per_page = pagination.per_page or 5

@@ -4,8 +4,12 @@ import jwt
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import (AuthTokenErrorException, ObjectAlreadyExistsException, UserAlreadyExistsException,
-                            UserPasswordWrongException)
+from src.exceptions import (
+    AuthTokenErrorException,
+    ObjectAlreadyExistsException,
+    UserAlreadyExistsException,
+    UserPasswordWrongException,
+)
 from src.schemas.users import UserRequestAddSchema, UserAddSchema
 from src.services.base import BaseService
 
@@ -39,14 +43,14 @@ class AuthService(BaseService):
             )
         except (jwt.exceptions.DecodeError, jwt.exceptions.ExpiredSignatureError) as e:
             raise AuthTokenErrorException from e
-        
+
     async def login_user(self, data: UserRequestAddSchema):
         user = await self.db.users.get_user_with_hashed_pwd(email=data.email)
         if not user:
             raise UserAlreadyExistsException
         if not self.verify_password(data.password, user.hashed_password):
             raise UserPasswordWrongException
-        
+
         access_token = self.create_access_token({"user_id": user.id})
         return access_token
 
@@ -57,5 +61,5 @@ class AuthService(BaseService):
         try:
             await self.db.users.add(new_user_data)
             await self.db.commit()
-        except ObjectAlreadyExistsException:
-            raise UserAlreadyExistsException
+        except ObjectAlreadyExistsException as e:
+            raise UserAlreadyExistsException from e

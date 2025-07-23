@@ -5,9 +5,9 @@ from src.services.utils import DataChecker
 
 class BookingService(BaseService, DataChecker):
     async def create_booking(
-            self,
-            user_id: int,
-            booking_data: BookingAddRequestSchema,
+        self,
+        user_id: int,
+        booking_data: BookingAddRequestSchema,
     ):
         room = await self._check_and_get_room(self.db, booking_data.room_id)
 

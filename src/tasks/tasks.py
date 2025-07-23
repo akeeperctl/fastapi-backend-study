@@ -52,7 +52,9 @@ def compress_image(
                 save_kwargs["optimize"] = True
             resized.save(output_path, **save_kwargs)
 
-            logger.info(f"Изображение сохранено в следующих размерах: {sizes} в папке {output_path}")
+            logger.info(
+                f"Изображение сохранено в следующих размерах: {sizes} в папке {output_path}"
+            )
 
 
 async def send_emails_to_users_with_today_checkin_helper():

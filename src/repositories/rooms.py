@@ -29,10 +29,7 @@ class RoomsRepository(BaseRepository):
         )
 
         result = await self.session.execute(query)
-        return [
-            self.mapper.map_to_domain_entity(orm)
-            for orm in result.unique().scalars().all()
-        ]
+        return [self.mapper.map_to_domain_entity(orm) for orm in result.unique().scalars().all()]
 
     async def get_one_with_rels(self, **filter_by):
         """Получение номера с загрузкой зависимостей"""
