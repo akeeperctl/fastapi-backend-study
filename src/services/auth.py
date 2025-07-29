@@ -8,7 +8,7 @@ from src.exceptions import (
     AuthTokenErrorException,
     ObjectAlreadyExistsException,
     UserAlreadyExistsException,
-    UserPasswordWrongException,
+    UserPasswordWrongException, UserNotExistsException,
 )
 from src.schemas.users import UserRequestAddSchema, UserAddSchema
 from src.services.base import BaseService
@@ -47,7 +47,7 @@ class AuthService(BaseService):
     async def login_user(self, data: UserRequestAddSchema):
         user = await self.db.users.get_user_with_hashed_pwd(email=data.email)
         if not user:
-            raise UserAlreadyExistsException
+            raise UserNotExistsException
         if not self.verify_password(data.password, user.hashed_password):
             raise UserPasswordWrongException
 

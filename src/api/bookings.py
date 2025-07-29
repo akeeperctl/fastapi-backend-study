@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.exceptions import BookingRoomNotAvailableException, BookingRoomNotAvailableHTTPException
+from src.exceptions import (BookingRoomNotAvailableException, BookingRoomNotAvailableHTTPException,
+                            DateFromLaterDateToException, DateFromLaterDateToHTTPException)
 from src.schemas.bookings import BookingAddRequestSchema
 from src.services.bookings import BookingService
 
@@ -16,8 +17,10 @@ async def create_booking(
 ):
     try:
         booking = await BookingService(db).create_booking(user_id, booking_data)
-    except BookingRoomNotAvailableException:
-        raise BookingRoomNotAvailableHTTPException
+    except DateFromLaterDateToException as e:
+        raise DateFromLaterDateToHTTPException from e
+    except BookingRoomNotAvailableException as e:
+        raise BookingRoomNotAvailableHTTPException from e
 
     return {"status": "ok", "data": booking}
 

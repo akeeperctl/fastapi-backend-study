@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body
 from fastapi.openapi.models import Example
 from fastapi.params import Query
 from fastapi_cache.decorator import cache
@@ -10,7 +10,7 @@ from src.api.dependencies import PaginationDep, DBDep
 from src.exceptions import (
     DateFromLaterDateToException,
     HotelNotFoundHTTPException,
-    HotelNotFoundException,
+    HotelNotFoundException, DateFromLaterDateToHTTPException,
 )
 from src.schemas.hotels import HotelPatchSchema, HotelAddSchema
 from src.services.hotels import HotelService
@@ -37,7 +37,7 @@ async def get_hotels(
     try:
         hotels = await HotelService(db).get_hotels(pagination, title, location, date_from, date_to)
     except DateFromLaterDateToException as e:
-        raise HTTPException(status_code=422, detail=e.detail)
+        raise DateFromLaterDateToHTTPException from e
 
     return {"status": "ok", "data": hotels}
 
