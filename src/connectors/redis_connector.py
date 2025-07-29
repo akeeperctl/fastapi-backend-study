@@ -11,6 +11,7 @@ class RedisConnector:
     async def connect(self):
         logger.info(f"Подключение к серверу Redis host={self.host} port={self.port}")
         self.redis = await redis.Redis(host=self.host, port=self.port)
+        # TODO: проверять подключение к Redis
         logger.info(f"Успешное подключение к серверу Redis host={self.host} port={self.port}")
 
     async def set(self, key: str, value: str, expire: int = None):

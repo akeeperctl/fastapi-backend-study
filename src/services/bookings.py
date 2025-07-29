@@ -10,6 +10,8 @@ class BookingService(BaseService, DataChecker):
         booking_data: BookingAddRequestSchema,
     ):
         room = await self._check_and_get_room(self.db, booking_data.room_id)
+
+        # TODO: дата заезда не может быть раньше чем сегодня. Т.е нельзя бронировать время заезда на вчера)
         self._check_dates(booking_data.date_from, booking_data.date_to)
 
         price_per_day = room.price
