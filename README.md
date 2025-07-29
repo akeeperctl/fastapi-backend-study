@@ -2,12 +2,13 @@ docker build -t booking_image .
 
 docker network create myapp
 
-docker run --name booking_db \
-    -p 6432:5432 \
-    -e POSTGRES_USER=abcde \
-    -e POSTGRES_PASSWORD=abcde \
-    -e POSTGRES_DB=booking \
-    --network=myapp \
+docker run --name booking_db `
+    -p 6432:5432 `
+    -e POSTGRES_USER=abcde `
+    -e POSTGRES_PASSWORD=abcde `
+    -e POSTGRES_DB=booking `
+    --network=myapp `
+    --volume pg-booking-data:/var/lib/postgresql/data `
     -d postgres:16
 
 docker run --name booking_cache \

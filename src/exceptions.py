@@ -53,6 +53,10 @@ class UserAlreadyExistsException(DomickException):
     detail = "Такой пользователь уже существует в БД"
 
 
+class UserNotExistsException(DomickException):
+    detail = "Такой пользователь не существует"
+
+
 class UserPasswordWrongException(DomickException):
     detail = "Введен неверный пароль"
 
@@ -101,6 +105,11 @@ class AuthTokenNotFoundHTTPException(DomickHTTPException):
 class UserAlreadyExistsHTTPException(DomickHTTPException):
     status_code = 409
     detail = "Такой пользователь уже существует"
+
+
+class UserNotExistsHTTPException(DomickHTTPException):
+    status_code = 404
+    detail = "Такой пользователь не существует"
 
 
 class UserPasswordWrongHTTPException(DomickHTTPException):

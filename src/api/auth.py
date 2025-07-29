@@ -6,6 +6,8 @@ from src.exceptions import (
     UserPasswordWrongHTTPException,
     UserAlreadyExistsException,
     UserAlreadyExistsHTTPException,
+    UserNotExistsException,
+    UserNotExistsHTTPException,
 )
 from src.schemas.users import UserRequestAddSchema
 from src.services.auth import AuthService
@@ -26,10 +28,10 @@ async def login_user(
 ):
     try:
         access_token = await AuthService(db).login_user(data)
-    except UserAlreadyExistsException:
-        raise UserAlreadyExistsHTTPException
-    except UserPasswordWrongException:
-        raise UserPasswordWrongHTTPException
+    except UserNotExistsException as e:
+        raise UserNotExistsHTTPException from e
+    except UserPasswordWrongException as e:
+        raise UserPasswordWrongHTTPException from e
 
     response.set_cookie("access_token", access_token)
     return {"status": "ok", "data": access_token}
@@ -39,8 +41,8 @@ async def login_user(
 async def register_user(db: DBDep, data: UserRequestAddSchema):
     try:
         await AuthService(db).register_user(data)
-    except UserAlreadyExistsException:
-        raise UserAlreadyExistsHTTPException
+    except UserAlreadyExistsException as e:
+        raise UserAlreadyExistsHTTPException from e
     return {"status": "ok"}
 
 
