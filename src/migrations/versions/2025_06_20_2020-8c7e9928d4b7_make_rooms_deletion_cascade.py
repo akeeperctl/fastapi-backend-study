@@ -18,7 +18,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.drop_constraint(op.f("rooms_hotel_id_fkey"), "rooms", type_="foreignkey")
+    op.drop_constraint(op.f("fk_rooms_hotel_id_hotels"), "rooms", type_="foreignkey")
     op.create_foreign_key(
         op.f("fk_rooms_hotel_id_hotels"),
         "rooms",
@@ -31,4 +31,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_constraint(op.f("fk_rooms_hotel_id_hotels"), "rooms", type_="foreignkey")
-    op.create_foreign_key(op.f("rooms_hotel_id_fkey"), "rooms", "hotels", ["hotel_id"], ["id"])
+    op.create_foreign_key(op.f("fk_rooms_hotel_id_hotels"), "rooms", "hotels", ["hotel_id"], ["id"])
