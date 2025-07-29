@@ -24,7 +24,7 @@ async def create_booking(
 
 @router.get("", description="Получить все бронирования")
 async def get_bookings(db: DBDep):
-    bookings = await BookingService(db).get_bookings(db)
+    bookings = await BookingService(db).get_bookings()
     return {"status": "ok", "data": bookings}
 
 
