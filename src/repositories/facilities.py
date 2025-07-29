@@ -1,5 +1,8 @@
+from loguru import logger
 from sqlalchemy import select, insert, delete, exists
+from sqlalchemy.exc import IntegrityError
 
+from src.exceptions import InvalidFacilityIdException
 from src.models.facilities import FacilitiesOrm, RoomsFacilitiesOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import FacilityDataMapper, RoomsFacilityDataMapper
@@ -29,6 +32,9 @@ class RoomsFacilitiesRepository(BaseRepository):
         facilities_ids_to_delete = [current_facilities_ids - facilities_ids]
         current_facilities_ids = [1,2,4]
         """
+
+        if 0 in facilities_ids:
+            raise InvalidFacilityIdException
 
         current_facilities_ids_q = (
             select(self.orm.facility_id).select_from(self.orm).where(self.orm.room_id == room_id)
@@ -68,4 +74,12 @@ class RoomsFacilitiesRepository(BaseRepository):
                 )
                 stmt = stmt.where(exists(select(1).select_from(facilities_delete_ids)))
 
-            await self.session.execute(stmt)
+            try:
+                await self.session.execute(stmt)
+            except IntegrityError as e:
+                error_type = type(e.orig.__cause__)
+                if "ForeignKeyViolationError" in str(error_type):
+                    raise InvalidFacilityIdException from e
+                else:
+                    logger.error(f"Незнакомая ошибка, тип ошибки: {error_type=}")
+                    raise e

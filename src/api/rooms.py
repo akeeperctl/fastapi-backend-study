@@ -10,7 +10,7 @@ from src.exceptions import (
     RoomNotFoundException,
     HotelNotFoundException,
     DateFromLaterDateToException,
-    DateFromLaterDateToHTTPException,
+    DateFromLaterDateToHTTPException, InvalidFacilityIdException, InvalidFacilityIdHTTPException,
 )
 from src.schemas.rooms import (
     RoomAddRequestSchema,
@@ -91,6 +91,8 @@ async def create_room(
 async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomAddRequestSchema):
     try:
         await RoomService(db).edit_room(hotel_id=hotel_id, room_id=room_id, room_data=room_data)
+    except InvalidFacilityIdException as e:
+        raise InvalidFacilityIdHTTPException from e
     except RoomNotFoundException as e:
         raise RoomNotFoundHTTPException from e
     except HotelNotFoundException as e:
@@ -103,6 +105,8 @@ async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomAddRe
 async def patch_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomPatchRequestSchema):
     try:
         await RoomService(db).patch_room(hotel_id=hotel_id, room_id=room_id, room_data=room_data)
+    except InvalidFacilityIdException as e:
+        raise InvalidFacilityIdHTTPException from e
     except RoomNotFoundException as e:
         raise RoomNotFoundHTTPException from e
     except HotelNotFoundException as e:

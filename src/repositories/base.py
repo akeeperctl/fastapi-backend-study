@@ -2,7 +2,7 @@ from asyncpg.exceptions import UniqueViolationError
 from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException
@@ -39,9 +39,10 @@ class BaseRepository:
         """Получить единицу данных"""
         query = select(self.orm).filter_by(**filter_by)
         result = await self.session.execute(query)
-        item = result.scalars().one()
-        if item is None:
-            raise ObjectNotFoundException
+        try:
+            item = result.scalars().one()
+        except NoResultFound as e:
+            raise ObjectNotFoundException from e
         return self.mapper.map_to_domain_entity(item)
 
     async def add(self, data: BaseModel):
@@ -54,7 +55,7 @@ class BaseRepository:
         except IntegrityError as e:
             logger.error(f"Не удалось добавить данные в БД, тип ошибки: {type(e.orig.__cause__)=}")
             if isinstance(e.orig.__cause__, UniqueViolationError):
-                raise ObjectAlreadyExistsException
+                raise ObjectAlreadyExistsException from e
             else:
                 logger.error(f"Незнакомая ошибка, тип ошибки: {type(e.orig.__cause__)=}")
                 raise e

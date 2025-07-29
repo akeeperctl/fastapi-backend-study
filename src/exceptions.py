@@ -61,6 +61,10 @@ class UserNotDefinedException(DomickException):
     detail = "Текущий пользователь не определен"
 
 
+class InvalidFacilityIdException(DomickException):
+    detail = "Неверный идентификатор удобства"
+
+
 class DomickHTTPException(HTTPException):
     status_code = 500
     detail = None
@@ -107,3 +111,8 @@ class UserPasswordWrongHTTPException(DomickHTTPException):
 class BookingRoomNotAvailableHTTPException(DomickHTTPException):
     status_code = 403
     detail = "Номер недоступен для бронирования на указанный срок"
+
+
+class InvalidFacilityIdHTTPException(DomickHTTPException):
+    status_code = 422
+    detail = "Неверный идентификатор удобства"

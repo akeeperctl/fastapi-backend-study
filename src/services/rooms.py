@@ -46,12 +46,11 @@ class RoomService(BaseService, DataChecker):
         await self._check_and_get_hotel(self.db, hotel_id)
         await self._check_and_get_room(self.db, room_id)
 
-        _room_data = RoomAddSchema(hotel_id=hotel_id, **room_data.model_dump())
+        _room_data_dict = room_data.model_dump()
+        _room_data = RoomAddSchema(hotel_id=hotel_id, **_room_data_dict)
 
         await self.db.rooms.edit(data=_room_data, id=room_id, hotel_id=hotel_id)
-        await self.db.rooms_facilities.replace_facilities(
-            room_id=room_id, facilities_ids=room_data.facilities_ids
-        )
+        await self._check_and_replace_facilities(self.db, room_id, _room_data_dict)
         await self.db.commit()
 
     async def patch_room(self, hotel_id: int, room_id: int, room_data: RoomPatchRequestSchema):
@@ -63,11 +62,7 @@ class RoomService(BaseService, DataChecker):
         _room_data = RoomPatchSchema(hotel_id=hotel_id, **_room_data_dict)
 
         await self.db.rooms.edit(data=_room_data, hotel_id=hotel_id, id=room_id, exclude_unset=True)
-        if "facilities_ids" in _room_data_dict:
-            await self.db.rooms_facilities.replace_facilities(
-                room_id=room_id, facilities_ids=_room_data_dict["facilities_ids"]
-            )
-
+        await self._check_and_replace_facilities(self.db, room_id, _room_data_dict)
         await self.db.commit()
 
     async def delete_room(self, hotel_id: int, room_id: int):

@@ -31,7 +31,7 @@ class HotelService(BaseService, DataChecker):
         return hotels
 
     async def get_hotel(self, hotel_id: int):
-        return await self.db.hotels.get_one(id=hotel_id)
+        return await self._check_and_get_hotel(self.db, hotel_id)
 
     async def add_hotel(self, hotel_data: HotelAddSchema):
         hotel = await self.db.hotels.add(hotel_data)
@@ -40,7 +40,6 @@ class HotelService(BaseService, DataChecker):
 
     async def edit_hotel(self, hotel_id: int, hotel_data: HotelAddSchema) -> None:
         await self._check_and_get_hotel(self.db, hotel_id)
-
         await self.db.hotels.edit(id=hotel_id, data=hotel_data)
         await self.db.commit()
 
