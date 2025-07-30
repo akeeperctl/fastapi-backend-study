@@ -37,6 +37,14 @@ class ObjectNotFoundException(DomickException):
     detail = "Объект не был найден в БД"
 
 
+class ObjectKeyNotCorrectException(DomickException):
+    detail = "Некорректный ключ сущности"
+
+
+class FacilityKeyNotCorrectException(DomickException):
+    detail = "Некорректный ключ удобства"
+
+
 class RoomNotFoundException(DomickException):
     detail = "Номер не найден в БД"
 
@@ -63,10 +71,6 @@ class UserPasswordWrongException(DomickException):
 
 class UserNotDefinedException(DomickException):
     detail = "Текущий пользователь не определен"
-
-
-class InvalidFacilityIdException(DomickException):
-    detail = "Неверный идентификатор удобства"
 
 
 class DomickHTTPException(HTTPException):
@@ -122,6 +126,6 @@ class BookingRoomNotAvailableHTTPException(DomickHTTPException):
     detail = "Номер недоступен для бронирования на указанный срок"
 
 
-class InvalidFacilityIdHTTPException(DomickHTTPException):
+class FacilityKeyNotCorrectHTTPException(DomickHTTPException):
     status_code = 422
-    detail = "Неверный идентификатор удобства"
+    detail = "Некорректный идентификатор удобства"

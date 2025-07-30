@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 from httpx import AsyncClient, ASGITransport
 
+from src.schemas.facilities import FacilityAddSchema
 from src.schemas.users import UserRequestAddSchema
 from src.schemas.hotels import HotelAddSchema
 from src.schemas.rooms import RoomAddSchema
@@ -56,11 +57,15 @@ async def setup_database(is_test_mode):
         hotels_data = json.load(f)
     with open("tests/mock_rooms.json") as f:
         rooms_data = json.load(f)
+    with open("tests/mock_facilities.json") as f:
+        facilities_data = json.load(f)
 
     _hotels = [HotelAddSchema.model_validate(hotel) for hotel in hotels_data]
     _rooms = [RoomAddSchema.model_validate(room) for room in rooms_data]
+    _facilities = [FacilityAddSchema.model_validate(facility) for facility in facilities_data]
 
     async with DBManager(session_factory=async_session_maker_null_pool) as _db:
+        await _db.facilities.add_bulk(_facilities)
         await _db.hotels.add_bulk(_hotels)
         await _db.rooms.add_bulk(_rooms)
         await _db.commit()

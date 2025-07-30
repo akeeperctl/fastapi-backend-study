@@ -1,5 +1,6 @@
 from datetime import date
 
+from src.exceptions import ObjectKeyNotCorrectException, FacilityKeyNotCorrectException
 from src.schemas.facilities import RoomFacilityAddSchema
 from src.schemas.rooms import (
     RoomAddSchema,
@@ -33,11 +34,18 @@ class RoomService(BaseService, DataChecker):
         room = await self.db.rooms.add(_room_data)
 
         if room_data.facilities_ids:
+            if 0 in room_data.facilities_ids:
+                raise FacilityKeyNotCorrectException
+
             room_facilities_data = [
                 RoomFacilityAddSchema(room_id=room.id, facility_id=f_id)
                 for f_id in room_data.facilities_ids
             ]
-            await self.db.rooms_facilities.add_bulk(room_facilities_data)
+
+            try:
+                await self.db.rooms_facilities.add_bulk(room_facilities_data)
+            except ObjectKeyNotCorrectException as e:
+                raise FacilityKeyNotCorrectException from e
 
         await self.db.commit()
         return room

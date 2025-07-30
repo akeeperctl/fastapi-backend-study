@@ -1,11 +1,11 @@
-from asyncpg.exceptions import UniqueViolationError
+from asyncpg.exceptions import UniqueViolationError, ForeignKeyViolationError
 from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException
+from src.exceptions import (ObjectAlreadyExistsException, ObjectNotFoundException, ObjectKeyNotCorrectException)
 from src.repositories.mappers.base import DataMapper
 
 
@@ -64,8 +64,16 @@ class BaseRepository:
 
     async def add_bulk(self, data: list[BaseModel]):
         """Добавить множество данных"""
-        add_stmt = insert(self.orm).values([item.model_dump() for item in data])
-        await self.session.execute(add_stmt)
+
+        try:
+            add_stmt = insert(self.orm).values([item.model_dump() for item in data])
+            await self.session.execute(add_stmt)
+        except IntegrityError as e:
+            if isinstance(e.orig.__cause__, ForeignKeyViolationError):
+                raise ObjectKeyNotCorrectException from e
+            else:
+                logger.error(f"Незнакомая ошибка, тип ошибки: {type(e.orig.__cause__)=}")
+                raise e
 
     async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by):
         update_stmt = (

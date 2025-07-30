@@ -1,8 +1,9 @@
+from asyncpg import ForeignKeyViolationError
 from loguru import logger
 from sqlalchemy import select, insert, delete, exists
 from sqlalchemy.exc import IntegrityError
 
-from src.exceptions import InvalidFacilityIdException
+from src.exceptions import FacilityKeyNotCorrectException
 from src.models.facilities import FacilitiesOrm, RoomsFacilitiesOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import FacilityDataMapper, RoomsFacilityDataMapper
@@ -34,7 +35,7 @@ class RoomsFacilitiesRepository(BaseRepository):
         """
 
         if 0 in facilities_ids:
-            raise InvalidFacilityIdException
+            raise FacilityKeyNotCorrectException
 
         current_facilities_ids_q = (
             select(self.orm.facility_id).select_from(self.orm).where(self.orm.room_id == room_id)
@@ -77,9 +78,8 @@ class RoomsFacilitiesRepository(BaseRepository):
             try:
                 await self.session.execute(stmt)
             except IntegrityError as e:
-                error_type = type(e.orig.__cause__)
-                if "ForeignKeyViolationError" in str(error_type):
-                    raise InvalidFacilityIdException from e
+                if isinstance(e.orig.__cause__, ForeignKeyViolationError):
+                    raise FacilityKeyNotCorrectException from e
                 else:
-                    logger.error(f"Незнакомая ошибка, тип ошибки: {error_type=}")
+                    logger.error(f"Незнакомая ошибка, тип ошибки: {type(e.orig.__cause__)=}")
                     raise e
