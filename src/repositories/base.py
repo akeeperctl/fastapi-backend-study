@@ -42,6 +42,7 @@ class BaseRepository:
         try:
             item = result.scalars().one()
         except NoResultFound as e:
+            logger.error(f"Не удалось получить данные из БД, тип ошибки: {type(e)=}")
             raise ObjectNotFoundException from e
         return self.mapper.map_to_domain_entity(item)
 
@@ -69,6 +70,7 @@ class BaseRepository:
             add_stmt = insert(self.orm).values([item.model_dump() for item in data])
             await self.session.execute(add_stmt)
         except IntegrityError as e:
+            logger.error(f"Не удалось добавить данные в БД, тип ошибки: {type(e.orig.__cause__)=}")
             if isinstance(e.orig.__cause__, ForeignKeyViolationError):
                 raise ObjectKeyNotCorrectException from e
             else:

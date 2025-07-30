@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 import jwt
+from loguru import logger
 from passlib.context import CryptContext
 
 from src.config import settings
@@ -43,13 +44,14 @@ class AuthService(BaseService):
 
     @staticmethod
     def decode_token(encoded_token: str) -> dict:
-        """Расшифровать токен доступа"""
+        """Раскодировать токен доступа"""
 
         try:
             return jwt.decode(
                 encoded_token, key=settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM
             )
         except (jwt.exceptions.DecodeError, jwt.exceptions.ExpiredSignatureError) as e:
+            logger.error(f"Не удалось раскодировать токен доступа")
             raise AuthTokenErrorException from e
 
     async def login_user(self, data: UserRequestAddSchema):
@@ -57,8 +59,10 @@ class AuthService(BaseService):
 
         user = await self.db.users.get_user_with_hashed_pwd(email=data.email)
         if not user:
+            logger.error(f"Пользователь с указанными данными не существует")
             raise UserNotExistsException
         if not self.verify_password(data.password, user.hashed_password):
+            logger.error(f"Не удалось подтвердить подлинность пароля пользователя")
             raise UserPasswordWrongException
 
         access_token = self.create_access_token({"user_id": user.id})
@@ -74,4 +78,5 @@ class AuthService(BaseService):
             await self.db.users.add(new_user_data)
             await self.db.commit()
         except ObjectAlreadyExistsException as e:
+            logger.warning(f"Такой пользователь уже существует")
             raise UserAlreadyExistsException from e

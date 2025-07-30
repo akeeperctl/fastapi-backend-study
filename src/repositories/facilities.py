@@ -7,7 +7,6 @@ from src.exceptions import FacilityKeyNotCorrectException
 from src.models.facilities import FacilitiesOrm, RoomsFacilitiesOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import FacilityDataMapper, RoomsFacilityDataMapper
-from src.schemas.facilities import RoomFacilityAddSchema
 
 
 class FacilitiesRepository(BaseRepository):
@@ -20,9 +19,9 @@ class RoomsFacilitiesRepository(BaseRepository):
     mapper = RoomsFacilityDataMapper
 
     async def replace_facilities(
-        self,
-        room_id: int,
-        facilities_ids: list[int],
+            self,
+            room_id: int,
+            facilities_ids: list[int],
     ):
         """Заменить список идентификаторов удобств в указанной комнате"""
 
@@ -34,9 +33,6 @@ class RoomsFacilitiesRepository(BaseRepository):
         current_facilities_ids = [1,2,4]
         """
 
-        if 0 in facilities_ids:
-            raise FacilityKeyNotCorrectException
-
         current_facilities_ids_q = (
             select(self.orm.facility_id).select_from(self.orm).where(self.orm.room_id == room_id)
         )
@@ -45,9 +41,13 @@ class RoomsFacilitiesRepository(BaseRepository):
 
         # Получение идентификаторов путем вычитания множеств
         facilities_ids_to_add = [
-            RoomFacilityAddSchema(room_id=room_id, facility_id=f_id).model_dump()
+            {
+                "room_id": room_id,
+                "facility_id": f_id,
+            }
             for f_id in (set(facilities_ids) - set(current_facilities_ids))
         ]
+
         facilities_ids_to_delete = set(current_facilities_ids) - set(facilities_ids)
 
         if facilities_ids_to_add or facilities_ids_to_delete:
@@ -78,6 +78,7 @@ class RoomsFacilitiesRepository(BaseRepository):
             try:
                 await self.session.execute(stmt)
             except IntegrityError as e:
+                logger.error(f"Не удалось заменить удобства в БД, тип ошибки: {type(e.orig.__cause__)=}")
                 if isinstance(e.orig.__cause__, ForeignKeyViolationError):
                     raise FacilityKeyNotCorrectException from e
                 else:
