@@ -19,9 +19,9 @@ class RoomsFacilitiesRepository(BaseRepository):
     mapper = RoomsFacilityDataMapper
 
     async def replace_facilities(
-            self,
-            room_id: int,
-            facilities_ids: list[int],
+        self,
+        room_id: int,
+        facilities_ids: list[int],
     ):
         """Заменить список идентификаторов удобств в указанной комнате"""
 
@@ -78,7 +78,9 @@ class RoomsFacilitiesRepository(BaseRepository):
             try:
                 await self.session.execute(stmt)
             except IntegrityError as e:
-                logger.error(f"Не удалось заменить удобства в БД, тип ошибки: {type(e.orig.__cause__)=}")
+                logger.error(
+                    f"Не удалось заменить удобства в БД, тип ошибки: {type(e.orig.__cause__)=}"
+                )
                 if isinstance(e.orig.__cause__, ForeignKeyViolationError):
                     raise FacilityKeyNotCorrectException from e
                 else:

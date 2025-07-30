@@ -43,7 +43,6 @@ class RoomService(BaseService, DataChecker):
         room = await self.db.rooms.add(_room_data)
 
         if room_data.facilities_ids:
-
             try:
                 room_facilities_data = [
                     RoomFacilityAddSchema(room_id=room.id, facility_id=f_id)
@@ -52,7 +51,9 @@ class RoomService(BaseService, DataChecker):
                 await self.db.rooms_facilities.add_bulk(room_facilities_data)
             except (ObjectKeyNotCorrectException, ValidationError) as e:
                 if isinstance(e, ValidationError) and "facility_id" in str(e):
-                    logger.error(f"При добавлении номера не удалось добавить удобства, тип ошибки: {type(e)=}")
+                    logger.error(
+                        f"При добавлении номера не удалось добавить удобства, тип ошибки: {type(e)=}"
+                    )
                     raise FacilityKeyNotCorrectException from e
                 else:
                     logger.error(f"Незнакомая ошибка, тип ошибки: {type(e.__cause__)=}")

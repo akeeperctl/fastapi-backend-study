@@ -10,7 +10,8 @@ from src.api.dependencies import PaginationDep, DBDep
 from src.exceptions import (
     DateFromLaterDateToException,
     HotelNotFoundHTTPException,
-    HotelNotFoundException, DateFromLaterDateToHTTPException,
+    HotelNotFoundException,
+    DateFromLaterDateToHTTPException,
 )
 from src.schemas.hotels import HotelPatchSchema, HotelAddSchema
 from src.services.hotels import HotelService

@@ -5,7 +5,11 @@ from sqlalchemy import select, insert, delete, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.exceptions import (ObjectAlreadyExistsException, ObjectNotFoundException, ObjectKeyNotCorrectException)
+from src.exceptions import (
+    ObjectAlreadyExistsException,
+    ObjectNotFoundException,
+    ObjectKeyNotCorrectException,
+)
 from src.repositories.mappers.base import DataMapper
 
 

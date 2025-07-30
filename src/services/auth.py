@@ -9,7 +9,8 @@ from src.exceptions import (
     AuthTokenErrorException,
     ObjectAlreadyExistsException,
     UserAlreadyExistsException,
-    UserPasswordWrongException, UserNotExistsException,
+    UserPasswordWrongException,
+    UserNotExistsException,
 )
 from src.schemas.users import UserRequestAddSchema, UserAddSchema
 from src.services.base import BaseService

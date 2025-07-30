@@ -10,7 +10,7 @@ import pytest
         (4, "2025-07-30", "2025-08-07", 404),
         (-1, "2025-07-30", "2025-08-07", 404),
         (0, "2025-07-30", "2025-08-07", 404),
-    ]
+    ],
 )
 async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
     response = await ac.get(
@@ -18,7 +18,7 @@ async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
         params={
             "date_from": date_from,
             "date_to": date_to,
-        }
+        },
     )
 
     assert response.status_code == status_code
@@ -41,9 +41,11 @@ async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
         (1, "Test room desc", "Test room title", 0, 555, [], 422),
         (0, "Test room desc", "Test room title", 1, 0, [], 422),
         (1, "Test room desc", "Test room title", -1, -55, [], 422),
-    ]
+    ],
 )
-async def test_create_and_delete_room(hotel_id, description, title, quantity, price, facilities, status_code, ac):
+async def test_create_and_delete_room(
+    hotel_id, description, title, quantity, price, facilities, status_code, ac
+):
     # create
     response = await ac.post(
         f"hotels/{hotel_id}/rooms",
@@ -52,8 +54,8 @@ async def test_create_and_delete_room(hotel_id, description, title, quantity, pr
             "description": description,
             "price": price,
             "quantity": quantity,
-            "facilities_ids": facilities
-        }
+            "facilities_ids": facilities,
+        },
     )
 
     assert response.status_code == status_code
@@ -82,9 +84,7 @@ async def test_create_and_delete_room(hotel_id, description, title, quantity, pr
         assert check_data.get("facilities") == facilities
 
         # delete
-        delete_response = await ac.delete(
-            f"hotels/{hotel_id}/rooms/{room_id}"
-        )
+        delete_response = await ac.delete(f"hotels/{hotel_id}/rooms/{room_id}")
         delete_result = delete_response.json()
         assert delete_response.status_code == 200
         assert delete_result.get("status") == "ok"
@@ -99,7 +99,7 @@ async def test_create_and_delete_room(hotel_id, description, title, quantity, pr
         (3, 4, 200),
         (4, 1, 404),
         (3, 2, 404),
-    ]
+    ],
 )
 async def test_read_room(hotel_id, room_id, status_code, ac):
     response = await ac.get(
@@ -126,7 +126,7 @@ async def test_read_room(hotel_id, room_id, status_code, ac):
         (3, 4, "Osel", "", 200),
         (4, 1, "Potato", "Killbox", 404),
         (3, 2, "Pizza", "Shock", 404),
-    ]
+    ],
 )
 async def test_patch_room(hotel_id, room_id, description, title, status_code, ac):
     get_response = await ac.get(
@@ -148,7 +148,7 @@ async def test_patch_room(hotel_id, room_id, description, title, status_code, ac
         json={
             "title": title,
             "description": description,
-        }
+        },
     )
     assert patch_response.status_code == status_code
 
@@ -175,9 +175,11 @@ async def test_patch_room(hotel_id, room_id, description, title, status_code, ac
         (1, 3, "Test room desc edit", "Test room title edit", 1, 100, [0], 422),
         (1, 3, "Test room desc edit", "Test room title edit", 1, -100, [1, 2], 422),
         (1, 3, "Test room desc edit", "Test room title edit", -1, 100, [1, 2], 422),
-    ]
+    ],
 )
-async def test_edit_room(hotel_id, room_id, description, title, quantity, price, facilities, status_code, ac):
+async def test_edit_room(
+    hotel_id, room_id, description, title, quantity, price, facilities, status_code, ac
+):
     put_response = await ac.put(
         f"hotels/{hotel_id}/rooms/{room_id}",
         json={
@@ -185,8 +187,8 @@ async def test_edit_room(hotel_id, room_id, description, title, quantity, price,
             "description": description,
             "price": price,
             "quantity": quantity,
-            "facilities_ids": facilities
-        }
+            "facilities_ids": facilities,
+        },
     )
 
     assert put_response.status_code == status_code
