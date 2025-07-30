@@ -20,5 +20,5 @@ async def create_facility(
     db: DBDep,
     facility_data: FacilityAddSchema = Body(),
 ):
-    facility = await FacilityService(db).create_facility(facility_data)
+    facility = await FacilityService(db).add_facility(facility_data)
     return {"status": "ok", "data": facility}

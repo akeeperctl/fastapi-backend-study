@@ -4,11 +4,13 @@ from src.services.utils import DataChecker
 
 
 class BookingService(BaseService, DataChecker):
-    async def create_booking(
+    async def add_booking(
         self,
         user_id: int,
         booking_data: BookingAddRequestSchema,
     ):
+        """Добавить бронирование номера указанному пользователю"""
+
         room = await self._check_and_get_room(self.db, booking_data.room_id)
 
         # TODO: дата заезда не может быть раньше чем сегодня. Т.е нельзя бронировать время заезда на вчера)
@@ -28,7 +30,11 @@ class BookingService(BaseService, DataChecker):
         return booking
 
     async def get_bookings(self):
+        """Вернуть список всех бронирований"""
+
         return await self.db.bookings.get_all()
 
     async def get_me_bookings(self, user_id: int):
+        """Вернуть список бронирований определенного пользователя"""
+
         return await self.db.bookings.get_filtered(user_id=user_id)

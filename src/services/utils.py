@@ -12,6 +12,11 @@ from src.utils.db_manager import DBManager
 
 
 class DataChecker:
+    """
+    Инспектор данных. Проверяет наиболее используемые данные на их корректность.
+    Используется внутри сервисов.
+    """
+
     @staticmethod
     def _check_dates(date_from: date, date_to: date) -> None:
         if date_from >= date_to:

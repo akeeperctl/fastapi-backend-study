@@ -4,7 +4,9 @@ from src.tasks.tasks import test_task
 
 
 class FacilityService(BaseService):
-    async def create_facility(self, facility_data: FacilityAddSchema):
+    async def add_facility(self, facility_data: FacilityAddSchema):
+        """Добавить удобство"""
+
         facility = await self.db.facilities.add(facility_data)
         await self.db.commit()
 
@@ -12,4 +14,6 @@ class FacilityService(BaseService):
         return facility
 
     async def get_all(self):
+        """Вернуть список всех удобств"""
+
         return await self.db.facilities.get_all()

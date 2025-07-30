@@ -16,7 +16,7 @@ async def create_booking(
     booking_data: BookingAddRequestSchema,
 ):
     try:
-        booking = await BookingService(db).create_booking(user_id, booking_data)
+        booking = await BookingService(db).add_booking(user_id, booking_data)
     except DateFromLaterDateToException as e:
         raise DateFromLaterDateToHTTPException from e
     except BookingRoomNotAvailableException as e:

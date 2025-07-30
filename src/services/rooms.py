@@ -31,7 +31,7 @@ class RoomService(BaseService, DataChecker):
         room = await self.db.rooms.get_one_with_rels(id=room_id, hotel_id=hotel_id)
         return room
 
-    async def create_room(self, room_data: RoomAddRequestSchema, hotel_id: int):
+    async def add_room(self, room_data: RoomAddRequestSchema, hotel_id: int):
         """Создать номер в отеле"""
 
         await self._check_and_get_hotel(self.db, hotel_id)
@@ -57,7 +57,7 @@ class RoomService(BaseService, DataChecker):
         return room
 
     async def edit_room(self, hotel_id: int, room_id: int, room_data: RoomAddRequestSchema) -> None:
-        """Полное редактирование номера"""
+        """Отредактировать номер полностью"""
 
         await self._check_and_get_hotel(self.db, hotel_id)
         await self._check_and_get_room(self.db, room_id)
@@ -70,7 +70,7 @@ class RoomService(BaseService, DataChecker):
         await self.db.commit()
 
     async def patch_room(self, hotel_id: int, room_id: int, room_data: RoomPatchRequestSchema):
-        """Частичное редактирование номера"""
+        """Отредактировать номер частично"""
 
         await self._check_and_get_hotel(self.db, hotel_id)
         await self._check_and_get_room(self.db, room_id)
@@ -85,7 +85,7 @@ class RoomService(BaseService, DataChecker):
 
     async def delete_room(self, hotel_id: int, room_id: int):
         """Удалить номер из отеля"""
-        
+
         await self._check_and_get_hotel(self.db, hotel_id)
         await self._check_and_get_room(self.db, room_id)
 

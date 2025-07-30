@@ -83,7 +83,7 @@ async def create_room(
     ),
 ):
     try:
-        room = await RoomService(db).create_room(hotel_id=hotel_id, room_data=room_data)
+        room = await RoomService(db).add_room(hotel_id=hotel_id, room_data=room_data)
     except FacilityKeyNotCorrectException as e:
         raise FacilityKeyNotCorrectHTTPException from e
     except HotelNotFoundException as e:
