@@ -7,6 +7,7 @@ from fastapi.params import Query
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import PaginationDep, DBDep
+from src.pydantic_types import EntityId
 from src.exceptions import (
     DateFromLaterDateToException,
     HotelNotFoundHTTPException,
@@ -46,7 +47,7 @@ async def get_hotels(
 @router.get("/{hotel_id}")
 async def get_hotel(
     db: DBDep,
-    hotel_id: int,
+    hotel_id: EntityId,
 ):
     try:
         hotel = await HotelService(db).get_hotel(hotel_id)
@@ -86,7 +87,11 @@ async def create_hotel(
 # put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности
 # patch передает какой-то один или несколько параметров. Создан для редактирования 1-2 параметров
 @router.put("/{hotel_id}")
-async def edit_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAddSchema):
+async def edit_hotel(
+        db: DBDep,
+        hotel_data: HotelAddSchema,
+        hotel_id: EntityId
+):
     try:
         await HotelService(db).edit_hotel(hotel_id, hotel_data)
     except HotelNotFoundException as e:
@@ -97,7 +102,7 @@ async def edit_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAddSchema):
 @router.patch("/{hotel_id}")
 async def patch_hotel(
     db: DBDep,
-    hotel_id: int,
+    hotel_id: EntityId,
     hotel_data: HotelPatchSchema,
 ):
     try:
@@ -111,7 +116,7 @@ async def patch_hotel(
 @router.delete("/{hotel_id}")
 async def delete_hotel(
     db: DBDep,
-    hotel_id: int,
+    hotel_id: EntityId,
 ):
     try:
         await HotelService(db).delete_hotel(hotel_id)

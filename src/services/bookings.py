@@ -1,3 +1,4 @@
+from src.pydantic_types import EntityId
 from src.schemas.bookings import BookingAddRequestSchema, BookingAddSchema
 from src.services.base import BaseService
 from src.services.utils import DataChecker
@@ -6,7 +7,7 @@ from src.services.utils import DataChecker
 class BookingService(BaseService, DataChecker):
     async def add_booking(
         self,
-        user_id: int,
+        user_id: EntityId,
         booking_data: BookingAddRequestSchema,
     ):
         """Добавить бронирование номера указанному пользователю"""

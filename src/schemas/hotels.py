@@ -2,19 +2,21 @@
 # Представляет данные, их свойства, позволяет не нарушать DRY
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+from src.pydantic_types import EntityId
 
 
 class HotelAddSchema(BaseModel):
-    title: str
-    location: str = Field(description="Город, в котором находится отель")
+    title: str  # Название отеля
+    location: str  # Город, в котором находится отель
 
 
 # Схема соответствует объекту алхимии HotelOrm
 class HotelSchema(HotelAddSchema):
-    id: int
+    id: EntityId
 
 
 class HotelPatchSchema(BaseModel):
     title: Optional[str] = None
-    location: Optional[str] = Field(default=None, description="Город, в котором находится отель")
+    location: Optional[str] = None

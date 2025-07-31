@@ -4,6 +4,7 @@ from fastapi import APIRouter, Body, Query
 from fastapi.openapi.models import Example
 
 from src.api.dependencies import DBDep
+from src.pydantic_types import EntityId
 from src.exceptions import (
     RoomNotFoundHTTPException,
     HotelNotFoundHTTPException,
@@ -26,7 +27,7 @@ router = APIRouter(prefix="/hotels", tags=["Комнаты отелей"])
 @router.get("/{hotel_id}/rooms")
 async def get_rooms(
     db: DBDep,
-    hotel_id: int,
+    hotel_id: EntityId,
     date_from: date = Query(examples=["2025-07-01"]),
     date_to: date = Query(examples=["2025-07-07"]),
 ):
@@ -43,7 +44,11 @@ async def get_rooms(
 
 
 @router.get("/{hotel_id}/rooms/{room_id}")
-async def get_room(db: DBDep, hotel_id: int, room_id: int):
+async def get_room(
+        db: DBDep,
+        hotel_id: EntityId,
+        room_id: EntityId
+):
     try:
         room = await RoomService(db).get_room(room_id=room_id, hotel_id=hotel_id)
     except HotelNotFoundException as e:
@@ -57,7 +62,7 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int):
 @router.post("/{hotel_id}/rooms")
 async def create_room(
     db: DBDep,
-    hotel_id: int,
+    hotel_id: EntityId,
     room_data: RoomAddRequestSchema = Body(
         openapi_examples={
             "1": Example(
@@ -94,7 +99,12 @@ async def create_room(
 
 
 @router.put("/{hotel_id}/rooms/{room_id}")
-async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomAddRequestSchema):
+async def edit_room(
+        db: DBDep,
+        hotel_id: EntityId,
+        room_id: EntityId,
+        room_data: RoomAddRequestSchema
+):
     try:
         await RoomService(db).edit_room(hotel_id=hotel_id, room_id=room_id, room_data=room_data)
     except FacilityKeyNotCorrectException as e:
@@ -108,7 +118,12 @@ async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomAddRe
 
 
 @router.patch("/{hotel_id}/rooms/{room_id}")
-async def patch_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomPatchRequestSchema):
+async def patch_room(
+        db: DBDep,
+        hotel_id: EntityId,
+        room_id: EntityId,
+        room_data: RoomPatchRequestSchema
+):
     try:
         await RoomService(db).patch_room(hotel_id=hotel_id, room_id=room_id, room_data=room_data)
     except FacilityKeyNotCorrectException as e:
@@ -122,7 +137,11 @@ async def patch_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomPatc
 
 
 @router.delete("/{hotel_id}/rooms/{room_id}")
-async def delete_room(db: DBDep, hotel_id: int, room_id: int):
+async def delete_room(
+        db: DBDep,
+        hotel_id: EntityId,
+        room_id: EntityId
+):
     try:
         await RoomService(db).delete_room(hotel_id=hotel_id, room_id=room_id)
     except RoomNotFoundException as e:

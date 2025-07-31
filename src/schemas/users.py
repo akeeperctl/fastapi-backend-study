@@ -2,6 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
+from src.pydantic_types import EntityId
+
 
 class UserRequestAddSchema(BaseModel):
     """Схема на фронтенд API для добавления пользователя"""
@@ -18,7 +20,7 @@ class UserAddSchema(BaseModel):
 
 
 class UserSchema(BaseModel):
-    id: int
+    id: EntityId
     email: EmailStr
     first_name: Optional[str]
     last_name: Optional[str]

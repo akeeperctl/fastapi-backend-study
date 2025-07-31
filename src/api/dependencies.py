@@ -3,6 +3,7 @@ from typing import Optional, Annotated
 from fastapi import Query, Depends, Request
 from pydantic import BaseModel
 
+from src.pydantic_types import EntityId
 from src.database import async_session_maker
 from src.exceptions import (
     AuthTokenErrorException,
@@ -34,10 +35,10 @@ def get_token(request: Request) -> str:
     return token
 
 
-def get_current_user_id(token: str = Depends(get_token)) -> int:
+def get_current_user_id(token: str = Depends(get_token)) -> EntityId:
     try:
         token_data = AuthService().decode_token(token)
-        user_id: Optional[int] = token_data.get("user_id", None)
+        user_id: Optional[EntityId] = token_data.get("user_id", None)
         if not user_id:
             raise UserNotDefinedException
     except AuthTokenErrorException as e:
@@ -46,7 +47,7 @@ def get_current_user_id(token: str = Depends(get_token)) -> int:
     return user_id
 
 
-UserIdDep = Annotated[int, Depends(get_current_user_id)]
+UserIdDep = Annotated[EntityId, Depends(get_current_user_id)]
 
 
 async def get_db():

@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+from src.pydantic_types import EntityId
 
 
 class FacilityAddSchema(BaseModel):
@@ -6,13 +8,13 @@ class FacilityAddSchema(BaseModel):
 
 
 class FacilitySchema(FacilityAddSchema):
-    id: int
+    id: EntityId
 
 
 class RoomFacilityAddSchema(BaseModel):
-    room_id: int
-    facility_id: int = Field(gt=0)
+    room_id: EntityId
+    facility_id: EntityId
 
 
 class RoomFacilitySchema(RoomFacilityAddSchema):
-    id: int
+    id: EntityId

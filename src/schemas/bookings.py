@@ -2,35 +2,37 @@ from datetime import date, datetime
 
 from pydantic import BaseModel
 
+from src.pydantic_types import EntityId, UnsignedInt
+
 
 class BookingAddRequestSchema(BaseModel):
-    room_id: int
+    room_id: EntityId
     date_from: date
     date_to: date
 
 
 class BookingPatchRequestSchema(BaseModel):
-    room_id: int
+    room_id: EntityId
     date_from: date
     date_to: date
 
 
 class BookingAddSchema(BaseModel):
-    user_id: int
-    price: int
+    user_id: EntityId
+    price: UnsignedInt
 
-    room_id: int
+    room_id: EntityId
     date_from: date
     date_to: date
 
 
 class BookingSchema(BaseModel):
-    id: int
+    id: EntityId
 
-    user_id: int
-    price: int
+    user_id: EntityId
+    price: UnsignedInt
 
-    room_id: int
+    room_id: EntityId
     date_from: date
     date_to: date
 

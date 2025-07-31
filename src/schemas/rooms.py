@@ -1,53 +1,50 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from src.schemas.facilities import FacilitySchema
+from src.pydantic_types import EntityId, UnsignedInt, EntityIdList
 
 
 class RoomAddSchema(BaseModel):
-    hotel_id: int
+    hotel_id: EntityId
     title: str
     description: Optional[str] = None
-    price: int = Field(gt=0)
-    quantity: int = Field(gt=0)
+    price: UnsignedInt
+    quantity: UnsignedInt
 
 
 class RoomAddRequestSchema(BaseModel):
     title: str
     description: Optional[str] = None
-    price: int = Field(description="Стоимость за ночь", gt=0)
-    quantity: int = Field(description="Количество комнат в номере", gt=0)
-    facilities_ids: list[int] = Field(
-        default=None, description="Идентификаторы удобств, добавляемые в номер"
-    )
+    price: EntityId
+    quantity: EntityId
+    facilities_ids: EntityIdList = None
 
 
 class RoomPatchRequestSchema(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[int] = Field(default=None, description="Стоимость за ночь", gt=0)
-    quantity: Optional[int] = Field(default=None, description="Количество номеров", gt=0)
-    facilities_ids: Optional[list[int]] = Field(
-        default=None, description="Идентификаторы удобств, добавляемые в номер"
-    )
+    price: Optional[UnsignedInt] = None  # Стоимость за ночь
+    quantity: Optional[UnsignedInt] = None  # Количество номеров
+    facilities_ids: Optional[EntityIdList] = None  # Идентификаторы удобств, добавляемые в номер
 
 
 class RoomPatchSchema(BaseModel):
-    hotel_id: Optional[int] = None
+    hotel_id: Optional[EntityId] = None
     title: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[int] = Field(default=None, gt=0)
-    quantity: Optional[int] = Field(default=None, gt=0)
+    price: Optional[UnsignedInt] = None
+    quantity: Optional[UnsignedInt] = None
 
 
 class RoomSchema(BaseModel):
-    id: int
-    hotel_id: int
+    id: EntityId
+    hotel_id: EntityId
     title: str
     description: Optional[str] = None
-    price: int
-    quantity: int
+    price: UnsignedInt
+    quantity: UnsignedInt
 
 
 class RoomWithRelsSchema(RoomSchema):
