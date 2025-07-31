@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
         logger.error(f"Не удалось инициализировать FastAPICache! Тип ошибки: {type(e)}")
 
     try:
-        await celery_connector.connect()
+        celery_connector.connect()
         logger.info("Celery готов к работе!")
     except CeleryBrokerNotAvailableException as e:
         logger.error(f"Не удалось инициализировать Celery! Тип ошибки: {type(e)}")

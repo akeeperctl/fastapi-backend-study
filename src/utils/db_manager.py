@@ -1,3 +1,5 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.repositories.bookings import BookingsRepository
 from src.repositories.facilities import FacilitiesRepository, RoomsFacilitiesRepository
 from src.repositories.hotels import HotelsRepository
@@ -10,7 +12,7 @@ class DBManager:
         self.session_factory = session_factory
 
     async def __aenter__(self):
-        self.session = self.session_factory()
+        self.session: AsyncSession = self.session_factory()
 
         self.hotels = HotelsRepository(session=self.session)
         self.rooms = RoomsRepository(session=self.session)
