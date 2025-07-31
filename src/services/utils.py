@@ -4,7 +4,8 @@ from src.exceptions import (
     DateFromLaterDateToException,
     HotelNotFoundException,
     ObjectNotFoundException,
-    RoomNotFoundException, FacilityNotFoundException,
+    RoomNotFoundException,
+    FacilityNotFoundException,
 )
 from src.schemas.facilities import FacilitySchema
 from src.schemas.hotels import HotelSchema

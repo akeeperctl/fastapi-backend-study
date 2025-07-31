@@ -16,10 +16,7 @@ router = APIRouter(prefix="/auth", tags=["Авторизация и аутент
 
 
 @router.get("/me")
-async def get_me(
-        db: DBDep,
-        user_id: UserIdDep
-):
+async def get_me(db: DBDep, user_id: UserIdDep):
     return {"data": await db.users.get_one_or_none(id=user_id)}
 
 
@@ -41,10 +38,7 @@ async def login_user(
 
 
 @router.post("/register")
-async def register_user(
-        db: DBDep,
-        data: UserRequestAddSchema
-):
+async def register_user(db: DBDep, data: UserRequestAddSchema):
     try:
         await AuthService(db).register_user(data)
     except UserAlreadyExistsException as e:

@@ -18,7 +18,7 @@ def test_task():
 
 # @celery_instance.task
 def compress_image(
-        input_path: str,
+    input_path: str,
 ) -> None:
     """
     Сжимает изображение по ширине до каждого из sizes (px),

@@ -46,7 +46,7 @@ async def test_get_rooms(hotel_id, date_from, date_to, room_count, status_code, 
     ],
 )
 async def test_create_and_delete_room(
-        hotel_id, description, title, quantity, price, facilities, status_code, ac
+    hotel_id, description, title, quantity, price, facilities, status_code, ac
 ):
     # create
     response = await ac.post(
@@ -180,7 +180,7 @@ async def test_patch_room(hotel_id, room_id, description, title, status_code, ac
     ],
 )
 async def test_edit_room(
-        hotel_id, room_id, description, title, quantity, price, facilities, status_code, ac
+    hotel_id, room_id, description, title, quantity, price, facilities, status_code, ac
 ):
     put_response = await ac.put(
         f"hotels/{hotel_id}/rooms/{room_id}",

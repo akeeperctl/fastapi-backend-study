@@ -53,7 +53,9 @@ async def setup_database(is_test_mode):
     logger.info(f"Подключение к БД host={settings.DB_HOST} port={settings.DB_PORT}")
     try:
         async with engine_null_pool.begin() as conn:
-            logger.info(f"Подключение к БД успешно! host={settings.DB_HOST} port={settings.DB_PORT}")
+            logger.info(
+                f"Подключение к БД успешно! host={settings.DB_HOST} port={settings.DB_PORT}"
+            )
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
 

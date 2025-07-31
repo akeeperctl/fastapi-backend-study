@@ -23,7 +23,7 @@ async def test_get_facilities(ac):
         ("Xbox", 200, 200),
         ("PlayStation", 200, 200),
         ("PlayStation", 200, 200),
-    ]
+    ],
 )
 async def test_create_and_delete_facilities(title, created_status_code, deleted_status_code, ac):
     # create
@@ -60,7 +60,7 @@ async def test_create_and_delete_facilities(title, created_status_code, deleted_
         ("Xbox", 200),
         ("PlayStation", 200),
         ("PlayStation", 409),
-    ]
+    ],
 )
 async def test_create_facilities(title, status_code, ac):
     # create

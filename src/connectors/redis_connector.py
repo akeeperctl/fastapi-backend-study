@@ -17,7 +17,9 @@ class RedisConnector:
             await self.redis.ping()
             logger.info(f"Успешное подключение к серверу Redis host={self.host} port={self.port}")
         except redis.ConnectionError as e:
-            logger.error(f"Не удалось подключиться к серверу Redis host={self.host} port={self.port}")
+            logger.error(
+                f"Не удалось подключиться к серверу Redis host={self.host} port={self.port}"
+            )
             raise RedisNotAvailableException from e
 
     async def set(self, key: str, value: str, expire: int = None):

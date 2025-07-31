@@ -6,7 +6,7 @@ from loguru import logger
     "date_from, date_to, hotels_count, status_code",
     [
         ("2025-07-01", "2025-09-28", 3, 200),
-    ]
+    ],
 )
 async def test_get_hotels(date_from, date_to, hotels_count, status_code, ac):
     response = await ac.get(
@@ -36,16 +36,13 @@ async def test_get_hotels(date_from, date_to, hotels_count, status_code, ac):
     [
         ("Отель 5 звезд у моря", "Сочи", "ok", 200),
         ("Отель 5 звезд у песка", "Дубай", "ok", 200),
-    ]
+    ],
 )
 async def test_create_and_delete_hotel(title, location, status, status_code, ac):
     # create
     create_response = await ac.post(
         "/hotels",
-        json={
-            "title": title,
-            "location": location
-        },
+        json={"title": title, "location": location},
     )
     create_result = create_response.json()
     create_data = create_result.get("data")
@@ -80,7 +77,7 @@ async def test_create_and_delete_hotel(title, location, status, status_code, ac)
         (6, 404),
         (-1, 422),
         (0, 422),
-    ]
+    ],
 )
 async def test_get_hotel(hotel_id, status_code, ac):
     response = await ac.get(
@@ -104,7 +101,7 @@ async def test_get_hotel(hotel_id, status_code, ac):
         (4, "Отель 5 звезд Императрица", "Санкт-Петербург", 404),
         (-1, "Тестовое название отеля", "Тестовый город", 422),
         (0, "Тестовое название отеля", "Тестовый город", 422),
-    ]
+    ],
 )
 async def test_edit_hotel(hotel_id, title, location, status_code, ac):
     # edit
@@ -113,7 +110,7 @@ async def test_edit_hotel(hotel_id, title, location, status_code, ac):
         json={
             "title": title,
             "location": location,
-        }
+        },
     )
     assert edit_response.status_code == status_code
     if status_code == 200:
@@ -141,7 +138,7 @@ async def test_edit_hotel(hotel_id, title, location, status_code, ac):
         (4, "Отель 5 звезд Императрица", "Санкт-Петербург", 404),
         (-1, "Тестовое название отеля", "Тестовый город", 422),
         (0, "Тестовое название отеля", "Тестовый город", 422),
-    ]
+    ],
 )
 async def test_patch_hotel(hotel_id, title, location, status_code, ac):
     # старые данные
@@ -161,7 +158,7 @@ async def test_patch_hotel(hotel_id, title, location, status_code, ac):
         f"/hotels/{hotel_id}",
         json={
             "title": title,
-        }
+        },
     )
     assert patch_response.status_code == status_code
     if status_code == 200:
@@ -177,4 +174,7 @@ async def test_patch_hotel(hotel_id, title, location, status_code, ac):
             assert check_data
             assert isinstance(check_data, dict)
             assert check_data.get("title") == title
-            assert check_data.get("location") == old_data.get("location") and check_data.get("location") is not None
+            assert (
+                check_data.get("location") == old_data.get("location")
+                and check_data.get("location") is not None
+            )

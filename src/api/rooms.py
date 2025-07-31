@@ -44,11 +44,7 @@ async def get_rooms(
 
 
 @router.get("/{hotel_id}/rooms/{room_id}")
-async def get_room(
-        db: DBDep,
-        hotel_id: EntityId,
-        room_id: EntityId
-):
+async def get_room(db: DBDep, hotel_id: EntityId, room_id: EntityId):
     try:
         room = await RoomService(db).get_room(room_id=room_id, hotel_id=hotel_id)
     except HotelNotFoundException as e:
@@ -100,10 +96,7 @@ async def create_room(
 
 @router.put("/{hotel_id}/rooms/{room_id}")
 async def edit_room(
-        db: DBDep,
-        hotel_id: EntityId,
-        room_id: EntityId,
-        room_data: RoomAddRequestSchema
+    db: DBDep, hotel_id: EntityId, room_id: EntityId, room_data: RoomAddRequestSchema
 ):
     try:
         await RoomService(db).edit_room(hotel_id=hotel_id, room_id=room_id, room_data=room_data)
@@ -119,10 +112,7 @@ async def edit_room(
 
 @router.patch("/{hotel_id}/rooms/{room_id}")
 async def patch_room(
-        db: DBDep,
-        hotel_id: EntityId,
-        room_id: EntityId,
-        room_data: RoomPatchRequestSchema
+    db: DBDep, hotel_id: EntityId, room_id: EntityId, room_data: RoomPatchRequestSchema
 ):
     try:
         await RoomService(db).patch_room(hotel_id=hotel_id, room_id=room_id, room_data=room_data)
@@ -137,11 +127,7 @@ async def patch_room(
 
 
 @router.delete("/{hotel_id}/rooms/{room_id}")
-async def delete_room(
-        db: DBDep,
-        hotel_id: EntityId,
-        room_id: EntityId
-):
+async def delete_room(db: DBDep, hotel_id: EntityId, room_id: EntityId):
     try:
         await RoomService(db).delete_room(hotel_id=hotel_id, room_id=room_id)
     except RoomNotFoundException as e:

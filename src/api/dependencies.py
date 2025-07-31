@@ -11,7 +11,8 @@ from src.exceptions import (
     AuthTokenErrorException,
     AuthTokenErrorHTTPException,
     UserNotDefinedException,
-    AuthTokenNotFoundHTTPException, ServiceNotAvailableHTTPException,
+    AuthTokenNotFoundHTTPException,
+    ServiceNotAvailableHTTPException,
 )
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager

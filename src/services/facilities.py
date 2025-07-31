@@ -1,4 +1,4 @@
-from src.exceptions import (ObjectAlreadyExistsException, FacilityAlreadyExistsException)
+from src.exceptions import ObjectAlreadyExistsException, FacilityAlreadyExistsException
 from src.schemas.facilities import FacilityAddSchema
 from src.services.base import BaseService
 from src.services.utils import DataChecker

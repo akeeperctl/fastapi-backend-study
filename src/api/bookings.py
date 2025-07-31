@@ -36,9 +36,6 @@ async def get_bookings(db: DBDep):
 
 
 @router.get("/me", description="Получить бронирования авторизованного пользователя")
-async def get_me_bookings(
-        user_id: UserIdDep,
-        db: DBDep
-):
+async def get_me_bookings(user_id: UserIdDep, db: DBDep):
     bookings = await BookingService(db).get_me_bookings(user_id)
     return {"status": "ok", "data": bookings}

@@ -2,9 +2,12 @@ from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
-from src.exceptions import (FacilityAlreadyExistsException,
-                            FacilityAlreadyExistsHTTPException, FacilityNotFoundException,
-                            FacilityNotFoundHTTPException)
+from src.exceptions import (
+    FacilityAlreadyExistsException,
+    FacilityAlreadyExistsHTTPException,
+    FacilityNotFoundException,
+    FacilityNotFoundHTTPException,
+)
 from src.pydantic_types import EntityId
 from src.schemas.facilities import FacilityAddSchema
 from src.services.facilities import FacilityService
@@ -21,8 +24,8 @@ async def get_facilities(db: DBDep):
 
 @router.post("", description="Создать удобство")
 async def create_facility(
-        db: DBDep,
-        facility_data: FacilityAddSchema = Body(),
+    db: DBDep,
+    facility_data: FacilityAddSchema = Body(),
 ):
     try:
         facility = await FacilityService(db).add_facility(facility_data)
@@ -33,8 +36,8 @@ async def create_facility(
 
 @router.delete("/{facility_id}", description="Удалить удобство")
 async def delete_facility(
-        db: DBDep,
-        facility_id: EntityId,
+    db: DBDep,
+    facility_id: EntityId,
 ):
     try:
         await FacilityService(db).delete_facility(facility_id)

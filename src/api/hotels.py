@@ -87,11 +87,7 @@ async def create_hotel(
 # put передает ВСЕ параметры сущности, кроме ID. Создан для комплексного редактирования всей сущности
 # patch передает какой-то один или несколько параметров. Создан для редактирования 1-2 параметров
 @router.put("/{hotel_id}")
-async def edit_hotel(
-        db: DBDep,
-        hotel_data: HotelAddSchema,
-        hotel_id: EntityId
-):
+async def edit_hotel(db: DBDep, hotel_data: HotelAddSchema, hotel_id: EntityId):
     try:
         await HotelService(db).edit_hotel(hotel_id, hotel_data)
     except HotelNotFoundException as e:
