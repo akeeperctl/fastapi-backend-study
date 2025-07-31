@@ -48,11 +48,11 @@ async def delete_all_bookings():
         (1, "2025-07-03", "2025-07-12", 3),
     ],
 )
-async def test_add_and_get_my_booking(
+async def test_create_and_get_my_booking(
     room_id, date_from, date_to, bookings_count, logged_in_ac, delete_all_bookings
 ):
     # создание новых бронирований
-    response = await logged_in_ac.post(
+    create_response = await logged_in_ac.post(
         "/bookings",
         json={
             "room_id": room_id,
@@ -60,21 +60,19 @@ async def test_add_and_get_my_booking(
             "date_to": date_to,
         },
     )
-    assert response.status_code == 200
+    assert create_response.status_code == 200
+    create_result = create_response.json()
+    create_data = create_result.get("data")
 
-    result = response.json()
-    data = result.get("data")
-
-    assert data
-    assert isinstance(result, dict)
-    assert isinstance(data, dict)
+    assert create_data
+    assert isinstance(create_result, dict)
+    assert isinstance(create_data, dict)
 
     # получение созданных бронирований
-    response = await logged_in_ac.get("bookings/me")
+    me_response = await logged_in_ac.get("bookings/me")
 
-    result = response.json()
-    data = result.get("data")
-
-    assert isinstance(result, dict)
-    assert isinstance(data, list)
-    assert len(data) == bookings_count
+    me_result = me_response.json()
+    me_data = me_result.get("data")
+    assert isinstance(me_result, dict)
+    assert isinstance(me_data, list)
+    assert len(me_data) == bookings_count

@@ -45,6 +45,10 @@ class FacilityKeyNotCorrectException(DomickException):
     detail = "Некорректный ключ удобства"
 
 
+class FacilityAlreadyExistsException(DomickException):
+    detail = "Такое удобство уже существует в БД"
+
+
 class RoomNotFoundException(DomickException):
     detail = "Номер не найден в БД"
 
@@ -71,6 +75,18 @@ class UserPasswordWrongException(DomickException):
 
 class UserNotDefinedException(DomickException):
     detail = "Текущий пользователь не определен"
+
+
+class DBNotAvailableException(DomickException):
+    detail = "База данных недоступна"
+
+
+class RedisNotAvailableException(DomickException):
+    detail = "Redis недоступен"
+
+
+class CeleryBrokerNotAvailableException(DomickException):
+    detail = "Брокер Celery недоступен"
 
 
 class DomickHTTPException(HTTPException):
@@ -129,3 +145,8 @@ class BookingRoomNotAvailableHTTPException(DomickHTTPException):
 class FacilityKeyNotCorrectHTTPException(DomickHTTPException):
     status_code = 422
     detail = "Некорректный идентификатор удобства"
+
+
+class FacilityAlreadyExistsHTTPException(DomickHTTPException):
+    status_code = 409
+    detail = "Такое удобство уже существует"

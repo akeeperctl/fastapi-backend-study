@@ -2,6 +2,8 @@ from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
+from src.exceptions import (ObjectAlreadyExistsException, FacilityAlreadyExistsException,
+                            FacilityAlreadyExistsHTTPException)
 from src.schemas.facilities import FacilityAddSchema
 from src.services.facilities import FacilityService
 
@@ -20,5 +22,8 @@ async def create_facility(
     db: DBDep,
     facility_data: FacilityAddSchema = Body(),
 ):
-    facility = await FacilityService(db).add_facility(facility_data)
+    try:
+        facility = await FacilityService(db).add_facility(facility_data)
+    except FacilityAlreadyExistsException as e:
+        raise FacilityAlreadyExistsHTTPException from e
     return {"status": "ok", "data": facility}

@@ -8,8 +8,9 @@ import pytest
         (2, "2025-07-30", "2025-08-07", 200),
         (3, "2025-07-30", "2025-08-07", 200),
         (4, "2025-07-30", "2025-08-07", 404),
-        (-1, "2025-07-30", "2025-08-07", 404),
-        (0, "2025-07-30", "2025-08-07", 404),
+        (5, "2025-07-30", "2025-08-07", 404),
+        (-1, "2025-07-30", "2025-08-07", 422),
+        (0, "2025-07-30", "2025-08-07", 422),
     ],
 )
 async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
@@ -34,9 +35,10 @@ async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
     "hotel_id, description, title, quantity, price, facilities, status_code",
     [
         (1, "Test room desc", "Test room title", 5, 999, [], 200),
+        (10, "Test room desc", "Test room title", 5, 999, [], 404),
         (2, "Test room desc", "Test room title", 4, 888, [0], 422),
         (3, "Test room desc", "Test room title", 3, 777, [-1], 422),
-        (0, "Test room desc", "Test room title", 2, 666, [], 404),
+        (0, "Test room desc", "Test room title", 2, 666, [], 422),
         (1, "Test room desc", "Test room title", -1, 555, [], 422),
         (1, "Test room desc", "Test room title", 0, 555, [], 422),
         (0, "Test room desc", "Test room title", 1, 0, [], 422),

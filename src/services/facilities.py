@@ -1,3 +1,4 @@
+from src.exceptions import ObjectAlreadyExistsException, FacilityAlreadyExistsException
 from src.schemas.facilities import FacilityAddSchema
 from src.services.base import BaseService
 from src.tasks.tasks import test_task
@@ -7,8 +8,11 @@ class FacilityService(BaseService):
     async def add_facility(self, facility_data: FacilityAddSchema):
         """Добавить удобство"""
 
-        facility = await self.db.facilities.add(facility_data)
-        await self.db.commit()
+        try:
+            facility = await self.db.facilities.add(facility_data)
+            await self.db.commit()
+        except ObjectAlreadyExistsException as e:
+            raise FacilityAlreadyExistsException from e
 
         test_task.delay()
         return facility
