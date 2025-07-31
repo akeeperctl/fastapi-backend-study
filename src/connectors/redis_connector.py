@@ -1,18 +1,24 @@
 import redis.asyncio as redis
 from loguru import logger
 
+from src.exceptions import RedisNotAvailableException
+
 
 class RedisConnector:
     def __init__(self, host: str, port: int):
         self.host = host
         self.port = port
-        self.redis = None
+        self.redis = redis.Redis(host=self.host, port=self.port)
 
     async def connect(self):
         logger.info(f"Подключение к серверу Redis host={self.host} port={self.port}")
-        self.redis = await redis.Redis(host=self.host, port=self.port)
-        # TODO: проверять подключение к Redis
-        logger.info(f"Успешное подключение к серверу Redis host={self.host} port={self.port}")
+
+        try:
+            await self.redis.ping()
+            logger.info(f"Успешное подключение к серверу Redis host={self.host} port={self.port}")
+        except redis.ConnectionError as e:
+            logger.error(f"Не удалось подключиться к серверу Redis host={self.host} port={self.port}")
+            raise RedisNotAvailableException from e
 
     async def set(self, key: str, value: str, expire: int = None):
         if expire:

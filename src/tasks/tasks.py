@@ -6,8 +6,10 @@ from PIL import Image
 from loguru import logger
 
 from src.database import async_session_maker_null_pool
-from src.tasks.celery_app import celery_instance
+from src.init import celery_connector
 from src.utils.db_manager import DBManager
+
+celery_instance = celery_connector.celery
 
 
 @celery_instance.task
@@ -18,7 +20,7 @@ def test_task():
 
 # @celery_instance.task
 def compress_image(
-    input_path: str,
+        input_path: str,
 ) -> None:
     """
     Сжимает изображение по ширине до каждого из sizes (px),

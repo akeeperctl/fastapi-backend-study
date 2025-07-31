@@ -1,8 +1,10 @@
-from sqlalchemy import MetaData, NullPool
+from loguru import logger
+from sqlalchemy import MetaData, NullPool, text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
 from src.config import settings
+from src.exceptions import DBNotAvailableException
 
 engine = create_async_engine(settings.DB_URL)
 engine_null_pool = create_async_engine(settings.DB_URL, poolclass=NullPool)
@@ -30,3 +32,14 @@ class Base(DeclarativeBase):
     )
 
     pass
+
+
+async def check_db_connection():
+
+    try:
+        async with async_session_maker() as session:
+            await session.execute(text("SELECT version()"))
+            await session.commit()
+    except Exception as e:
+        logger.critical(f"Не удалось подключиться к БД. Тип ошибки: {type(e)}")
+        raise DBNotAvailableException from e
