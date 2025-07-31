@@ -17,8 +17,8 @@ class RoomAddSchema(BaseModel):
 class RoomAddRequestSchema(BaseModel):
     title: str
     description: Optional[str] = None
-    price: EntityId
-    quantity: EntityId
+    price: UnsignedInt
+    quantity: UnsignedInt
     facilities_ids: EntityIdList = None
 
 

@@ -2,18 +2,18 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "hotel_id, date_from, date_to, status_code",
+    "hotel_id, date_from, date_to, room_count, status_code",
     [
-        (1, "2025-07-30", "2025-08-07", 200),
-        (2, "2025-07-30", "2025-08-07", 200),
-        (3, "2025-07-30", "2025-08-07", 200),
-        (4, "2025-07-30", "2025-08-07", 404),
-        (5, "2025-07-30", "2025-08-07", 404),
-        (-1, "2025-07-30", "2025-08-07", 422),
-        (0, "2025-07-30", "2025-08-07", 422),
+        (1, "2025-07-30", "2025-08-07", 2, 200),
+        (2, "2025-07-30", "2025-08-07", 1, 200),
+        (3, "2025-07-30", "2025-08-07", 1, 200),
+        (4, "2025-07-30", "2025-08-07", 0, 404),
+        (5, "2025-07-30", "2025-08-07", 0, 404),
+        (-1, "2025-07-30", "2025-08-07", 0, 422),
+        (0, "2025-07-30", "2025-08-07", 0, 422),
     ],
 )
-async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
+async def test_get_rooms(hotel_id, date_from, date_to, room_count, status_code, ac):
     response = await ac.get(
         f"hotels/{hotel_id}/rooms",
         params={
@@ -26,7 +26,7 @@ async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
     if status_code == 200:
         data = response.json().get("data")
         assert data
-        assert len(data) > 0
+        assert len(data) == room_count
 
 
 # 422 код получается из проверки facilities
@@ -46,7 +46,7 @@ async def test_get_rooms(hotel_id, date_from, date_to, status_code, ac):
     ],
 )
 async def test_create_and_delete_room(
-    hotel_id, description, title, quantity, price, facilities, status_code, ac
+        hotel_id, description, title, quantity, price, facilities, status_code, ac
 ):
     # create
     response = await ac.post(
@@ -180,7 +180,7 @@ async def test_patch_room(hotel_id, room_id, description, title, status_code, ac
     ],
 )
 async def test_edit_room(
-    hotel_id, room_id, description, title, quantity, price, facilities, status_code, ac
+        hotel_id, room_id, description, title, quantity, price, facilities, status_code, ac
 ):
     put_response = await ac.put(
         f"hotels/{hotel_id}/rooms/{room_id}",

@@ -6,12 +6,13 @@ from sqlalchemy.orm import aliased
 
 from src.models.bookings import BookingsOrm
 from src.models.rooms import RoomsOrm
+from src.pydantic_types import EntityId
 
 
 def rooms_ids_for_bookings(
     date_from: date,
     date_to: date,
-    hotel_id: Optional[int] = None,
+    hotel_id: Optional[EntityId] = None,
 ):
     """Запрос на получение идентификаторов номеров,
     в которые можно заселиться в указанное время

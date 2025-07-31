@@ -143,7 +143,7 @@ async def test_edit_hotel(hotel_id, title, location, status_code, ac):
         (0, "Тестовое название отеля", "Тестовый город", 422),
     ]
 )
-async def test_edit_hotel(hotel_id, title, location, status_code, ac):
+async def test_patch_hotel(hotel_id, title, location, status_code, ac):
     # старые данные
     old_response = await ac.get(
         f"/hotels/{hotel_id}",

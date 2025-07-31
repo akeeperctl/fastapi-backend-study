@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.pydantic_types import EntityId
 
 
 class FacilityAddSchema(BaseModel):
-    title: str
+    title: str = Field(min_length=3)
 
 
 class FacilitySchema(FacilityAddSchema):

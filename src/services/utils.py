@@ -4,8 +4,9 @@ from src.exceptions import (
     DateFromLaterDateToException,
     HotelNotFoundException,
     ObjectNotFoundException,
-    RoomNotFoundException,
+    RoomNotFoundException, FacilityNotFoundException,
 )
+from src.schemas.facilities import FacilitySchema
 from src.schemas.hotels import HotelSchema
 from src.schemas.rooms import RoomSchema
 from src.utils.db_manager import DBManager
@@ -37,6 +38,14 @@ class DataChecker:
         except ObjectNotFoundException as e:
             raise RoomNotFoundException from e
         return room
+
+    @staticmethod
+    async def _check_and_get_facility(db: DBManager, facility_id: int) -> FacilitySchema:
+        try:
+            facility = await db.facilities.get_one(id=facility_id)
+        except ObjectNotFoundException as e:
+            raise FacilityNotFoundException from e
+        return facility
 
     @staticmethod
     async def _check_and_replace_facilities(db: DBManager, room_id: int, room_data: dict) -> None:

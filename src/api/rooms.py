@@ -36,7 +36,7 @@ async def get_rooms(
             hotel_id=hotel_id, date_from=date_from, date_to=date_to
         )
     except HotelNotFoundException as e:
-        raise RoomNotFoundHTTPException from e
+        raise HotelNotFoundHTTPException from e
     except DateFromLaterDateToException as e:
         raise DateFromLaterDateToHTTPException from e
 

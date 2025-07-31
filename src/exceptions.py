@@ -89,6 +89,10 @@ class CeleryBrokerNotAvailableException(DomickException):
     detail = "Брокер Celery недоступен"
 
 
+class FacilityNotFoundException(DomickException):
+    detail = "Удобство не найдено"
+
+
 class DomickHTTPException(HTTPException):
     status_code = 500
     detail = None
@@ -150,6 +154,11 @@ class FacilityKeyNotCorrectHTTPException(DomickHTTPException):
 class FacilityAlreadyExistsHTTPException(DomickHTTPException):
     status_code = 409
     detail = "Такое удобство уже существует"
+
+
+class FacilityNotFoundHTTPException(DomickHTTPException):
+    status_code = 404
+    detail = "Удобство не найдено"
 
 
 class ServiceNotAvailableHTTPException(DomickHTTPException):
