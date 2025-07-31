@@ -5,6 +5,7 @@ from unittest import mock
 
 import pytest
 from httpx import AsyncClient, ASGITransport
+from loguru import logger
 
 from src.schemas.facilities import FacilityAddSchema
 from src.schemas.users import UserRequestAddSchema
@@ -49,9 +50,17 @@ async def ac():
 
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database(is_test_mode):
-    async with engine_null_pool.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+    logger.info(f"Подключение к БД host={settings.DB_HOST} port={settings.DB_PORT}")
+    try:
+        async with engine_null_pool.begin() as conn:
+            logger.info(f"Подключение к БД успешно! host={settings.DB_HOST} port={settings.DB_PORT}")
+            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
+
+            settings.DB_AVAILABLE = True
+    except Exception as e:
+        logger.critical(f"Не удалось подключиться к БД. Тип ошибки: {type(e)}")
+        settings.DB_AVAILABLE = False
 
     with open("tests/mock_hotels.json") as f:
         hotels_data = json.load(f)

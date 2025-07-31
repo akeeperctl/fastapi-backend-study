@@ -35,11 +35,13 @@ class Base(DeclarativeBase):
 
 
 async def check_db_connection():
+    logger.info(f"Подключение к БД host={settings.DB_HOST} port={settings.DB_PORT}")
 
     try:
         async with async_session_maker() as session:
-            await session.execute(text("SELECT version()"))
+            await session.execute(text("SELECT 1"))
             await session.commit()
+            logger.info(f"Подключение к БД успешно! host={settings.DB_HOST} port={settings.DB_PORT}")
     except Exception as e:
         logger.critical(f"Не удалось подключиться к БД. Тип ошибки: {type(e)}")
         raise DBNotAvailableException from e

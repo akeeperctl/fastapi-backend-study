@@ -35,3 +35,7 @@ class CeleryConnector:
         except OperationalError as e:
             logger.error(f"Celery не удалось подключиться к брокеру broker={self.broker} backend={self.backend}")
             raise CeleryBrokerNotAvailableException from e
+
+    async def close(self):
+        if self.celery:
+            self.celery.close()

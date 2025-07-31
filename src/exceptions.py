@@ -150,3 +150,8 @@ class FacilityKeyNotCorrectHTTPException(DomickHTTPException):
 class FacilityAlreadyExistsHTTPException(DomickHTTPException):
     status_code = 409
     detail = "Такое удобство уже существует"
+
+
+class ServiceNotAvailableHTTPException(DomickHTTPException):
+    status_code = 424
+    detail = "Сервис временно недоступен. Повторите попытку позже"

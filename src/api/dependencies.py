@@ -1,15 +1,17 @@
 from typing import Optional, Annotated
 
 from fastapi import Query, Depends, Request
+from loguru import logger
 from pydantic import BaseModel
 
+from src.config import settings
 from src.pydantic_types import EntityId
 from src.database import async_session_maker
 from src.exceptions import (
     AuthTokenErrorException,
     AuthTokenErrorHTTPException,
     UserNotDefinedException,
-    AuthTokenNotFoundHTTPException,
+    AuthTokenNotFoundHTTPException, ServiceNotAvailableHTTPException,
 )
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager
@@ -51,6 +53,10 @@ UserIdDep = Annotated[EntityId, Depends(get_current_user_id)]
 
 
 async def get_db():
+    if not settings.DB_AVAILABLE:
+        logger.critical("БД недоступна! Проверьте соединение!")
+        raise ServiceNotAvailableHTTPException
+
     async with DBManager(session_factory=async_session_maker) as db:
         yield db
 
